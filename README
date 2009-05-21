@@ -1,0 +1,12 @@
+== Overview ==
+
+This is a toolkit named after my girl. It aims to provide high performance ActionScript 3 image loading and processing tools, such as pooled loader background loading and so on.
+
+It also will provide a Image zooming component which I use now.
+
+Needless to say, flex Image Object is lame, very lame. It needs somebody do something to get it better.
+
+Hope my work will at least do something useful to the flex programming community.
+
+== Developer(s) ==
+Jack <guitarpoet@gmail.com>
