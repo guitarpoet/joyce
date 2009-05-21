@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flexLibProperties version="1">
+<includeClasses>
+<classEntry path="net.guitarpoet.joyce.pool.Entry"/>
+<classEntry path="net.guitarpoet.joyce.pool.LRUStrategy"/>
+<classEntry path="net.guitarpoet.joyce.pool.Pool"/>
+<classEntry path="net.guitarpoet.joyce.pool.PoolStrategy"/>
+</includeClasses>
+<includeResources/>
+<namespaceManifests/>
+</flexLibProperties>
