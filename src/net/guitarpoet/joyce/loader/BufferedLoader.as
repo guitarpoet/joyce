@@ -1004,6 +1004,21 @@ package net.guitarpoet.joyce.loader {
 	                Loader(loader).unload();
 			}
 		}
+		
+		
+		/**
+		 * Preload the data into pool. Doesn't do anything about current.
+		 *  
+		 * @param url
+		 * 
+		 */
+		public function preload(url : String = null) : void {
+			var loader : FlexLoader = new FlexLoader();
+			var context : LoaderContext = new LoaderContext();
+			pool.addObject(url, loader);
+			// I just preload the image, I don't care when it loaded.
+			loader.load(new URLRequest(url), context);
+		}
 
 	    /**
 	     *  Loads an image or SWF file.
