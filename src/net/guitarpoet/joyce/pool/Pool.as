@@ -19,6 +19,8 @@ package net.guitarpoet.joyce.pool {
 		
 		protected var _disposer : Function;
 		
+		protected var _disposeOnReplace : Boolean = true;
+		
 		public function Pool(limit : int = 100, strategy : PoolStrategy = null) {
 			entries = new Object();
 			this._limit = limit;
@@ -49,6 +51,19 @@ package net.guitarpoet.joyce.pool {
 			this._disposer = d;
 		}
 		
+		/**
+		 * Dispose the entry when replace the entry.
+		 *  
+		 * @return 
+		 */
+		public function get disposeOnReplace() : Boolean {
+			return _disposeOnReplace;
+		}
+		
+		public function set disposeOnReplace(b : Boolean) : void {
+			this. _disposeOnReplace = b;
+		}
+		
 		public function has(name : String) : Boolean {
 			return entries[name] is Entry;
 		}
@@ -67,6 +82,9 @@ package net.guitarpoet.joyce.pool {
 			e.weight = weight;
 			if(capacity == limit)
 				evict();
+			if(this.has(name) && disposeOnReplace){
+				this.removeObject(name);
+			}
 			this.entries[name] = e;
 		}
 		

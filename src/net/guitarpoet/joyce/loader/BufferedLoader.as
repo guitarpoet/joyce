@@ -1016,7 +1016,7 @@ package net.guitarpoet.joyce.loader {
 			var loader : FlexLoader = new FlexLoader();
 			var context : LoaderContext = new LoaderContext();
 			pool.addObject(url, loader);
-			// I just preload the image, I don't care when it loaded.
+			// I just preload the data, I don't care when it loaded.
 			loader.load(new URLRequest(url), context);
 		}
 
@@ -1628,7 +1628,7 @@ package net.guitarpoet.joyce.loader {
 	    }
 	
 	    
-	    mx_internal function contentLoaderInfo_completeEventHandler(event:Event):void {
+	    protected function contentLoaderInfo_completeEventHandler(event:Event):void {
 	        // Sometimes we interrupt a load to start another load after
 	        // the bytes are in but before the complete event is dispatched.
 	        // In this case we get an IOError when we call close()
@@ -1649,140 +1649,140 @@ package net.guitarpoet.joyce.loader {
 	
 	    }
 
-    protected function contentLoaderInfo_httpStatusEventHandler(
-                            event:HTTPStatusEvent):void {
-        // Redispatch the event from this SWFLoader.
-        dispatchEvent(event);
-    }
+	    protected function contentLoaderInfo_httpStatusEventHandler(
+	                            event:HTTPStatusEvent):void {
+	        // Redispatch the event from this SWFLoader.
+	        dispatchEvent(event);
+	    }
+	
+	    protected function contentLoaderInfo_initEventHandler(event:Event):void {
+	        // Redispatch the event from this SWFLoader.
+	        dispatchEvent(event);
+	        
+	        // if we are loading a swf listen of a message if it ends up needing to
+	        // use a sandbox bridge to communicate.
+	        addInitSystemManagerCompleteListener(LoaderInfo(event.target).loader.contentLoaderInfo);
+	    }
 
-    protected function contentLoaderInfo_initEventHandler(event:Event):void {
-        // Redispatch the event from this SWFLoader.
-        dispatchEvent(event);
-        
-        // if we are loading a swf listen of a message if it ends up needing to
-        // use a sandbox bridge to communicate.
-        addInitSystemManagerCompleteListener(LoaderInfo(event.target).loader.contentLoaderInfo);
-    }
 
-
-    /**
-     * If we are loading a swf, listen for a message from the swf telling us it was loading
-     * into an application domain where it needs to use a sandbox bridge to communicate.
-     */
-    protected function addInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void {
-            if (contentIsFlash(loaderInfo)) {
-                    var bridge:EventDispatcher = loaderInfo.sharedEvents;
-                    bridge.addEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
-                                                              initSystemManagerCompleteEventHandler);
-            }
-    }
+	    /**
+	     * If we are loading a swf, listen for a message from the swf telling us it was loading
+	     * into an application domain where it needs to use a sandbox bridge to communicate.
+	     */
+	    protected function addInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void {
+	            if (contentIsFlash(loaderInfo)) {
+	                    var bridge:EventDispatcher = loaderInfo.sharedEvents;
+	                    bridge.addEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
+	                                                              initSystemManagerCompleteEventHandler);
+	            }
+	    }
     
-    /**
-     * Remove the listener after the swf is loaded.
-     */
-    protected function removeInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void {
-            if (contentIsFlash(loaderInfo)) {
-                    var bridge:EventDispatcher = loaderInfo.sharedEvents;                   
-                    bridge.removeEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
-                                                                      initSystemManagerCompleteEventHandler);
-            }
-    }
+	    /**
+	     * Remove the listener after the swf is loaded.
+	     */
+	    protected function removeInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void {
+	            if (contentIsFlash(loaderInfo)) {
+	                    var bridge:EventDispatcher = loaderInfo.sharedEvents;                   
+	                    bridge.removeEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
+	                                                                      initSystemManagerCompleteEventHandler);
+	            }
+	    }
 
-    protected function contentLoaderInfo_ioErrorEventHandler(
-                            event:IOErrorEvent):void {
-        // Error loading content, show the broken image.
-        source = getStyle("brokenImageSkin");
+	    protected function contentLoaderInfo_ioErrorEventHandler(
+	                            event:IOErrorEvent):void {
+	        // Error loading content, show the broken image.
+	        source = getStyle("brokenImageSkin");
+	
+	        // Force the load of the broken image skin here, since that will
+	        // clear the brokenImage flag. After the image is loaded we set
+	        // the brokenImage flag.
+	        load();
+	        contentChanged = false;
+	        brokenImage = true;
+	
+	        // Redispatch the event from this SWFLoader,
+	        // but only if there is a listener.
+	        // If there are no listeners for ioError event,
+	        // a runtime error is displayed.
+	        if (hasEventListener(event.type))
+	            dispatchEvent(event);
+	        
+	        if (contentHolder is Loader)
+	                        removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+	
+	    }
+	
+	    protected function contentLoaderInfo_openEventHandler(event:Event):void {
+	        // Redispatch the event from this SWFLoader.
+	        dispatchEvent(event);
+	    }
+	
+	    protected function contentLoaderInfo_progressEventHandler(
+	                            event:ProgressEvent):void {
+	        _bytesTotal = event.bytesTotal;
+	        _bytesLoaded = event.bytesLoaded;
+	
+	        // Redispatch the event from this SWFLoader.
+	        dispatchEvent(event);
+	    }
+	
+	    protected function contentLoaderInfo_securityErrorEventHandler(
+	                            event:SecurityErrorEvent):void {
+	        if (attemptingChildAppDomain) {
+	            attemptingChildAppDomain = false;
+	            var lc:LoaderContext = new LoaderContext();
+	            _loaderContext = lc;
+	            callLater(load);
+	            return;
+	        }
+	
+	        // Redispatch the event from this SWFLoader.
+	        dispatchEvent(event);
+	        
+	        if (contentHolder is Loader)
+	                        removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+	    }
 
-        // Force the load of the broken image skin here, since that will
-        // clear the brokenImage flag. After the image is loaded we set
-        // the brokenImage flag.
-        load();
-        contentChanged = false;
-        brokenImage = true;
+	    protected function contentLoaderInfo_unloadEventHandler(event:Event):void {
+	        // Redispatch the event from this SWFLoader.
+	        dispatchEvent(event);
+	        
+	        // remove the sandbox bridge if we had one.
+	        if (_swfBridge)
+	        {
+	            _swfBridge.removeEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
+	                                               invalidateRequestHandler);
+	                                               
+	            var sm:ISystemManager = systemManager;
+	                        sm.removeChildBridge(_swfBridge);
+	                        _swfBridge = null;
+	        }
+	
+	        if (contentHolder is Loader)
+	                        removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+	
+	    }
 
-        // Redispatch the event from this SWFLoader,
-        // but only if there is a listener.
-        // If there are no listeners for ioError event,
-        // a runtime error is displayed.
-        if (hasEventListener(event.type))
-            dispatchEvent(event);
-        
-        if (contentHolder is Loader)
-                        removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
-
-    }
-
-    protected function contentLoaderInfo_openEventHandler(event:Event):void {
-        // Redispatch the event from this SWFLoader.
-        dispatchEvent(event);
-    }
-
-    protected function contentLoaderInfo_progressEventHandler(
-                            event:ProgressEvent):void {
-        _bytesTotal = event.bytesTotal;
-        _bytesLoaded = event.bytesLoaded;
-
-        // Redispatch the event from this SWFLoader.
-        dispatchEvent(event);
-    }
-
-    protected function contentLoaderInfo_securityErrorEventHandler(
-                            event:SecurityErrorEvent):void {
-        if (attemptingChildAppDomain) {
-            attemptingChildAppDomain = false;
-            var lc:LoaderContext = new LoaderContext();
-            _loaderContext = lc;
-            callLater(load);
-            return;
-        }
-
-        // Redispatch the event from this SWFLoader.
-        dispatchEvent(event);
-        
-        if (contentHolder is Loader)
-                        removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
-    }
-
-    protected function contentLoaderInfo_unloadEventHandler(event:Event):void {
-        // Redispatch the event from this SWFLoader.
-        dispatchEvent(event);
-        
-        // remove the sandbox bridge if we had one.
-        if (_swfBridge)
-        {
-            _swfBridge.removeEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
-                                               invalidateRequestHandler);
-                                               
-            var sm:ISystemManager = systemManager;
-                        sm.removeChildBridge(_swfBridge);
-                        _swfBridge = null;
-        }
-
-        if (contentHolder is Loader)
-                        removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
-
-    }
-
-    /**
-     *  Message dispatched from System Manager. This gives us the child bridge
-     *  of the application we loaded.
-     */
-    protected function initSystemManagerCompleteEventHandler(event:Event):void {
-        var eObj:Object = Object(event);
-        
-        // make sure this is the child we created by checking the loader info.
-        if (contentHolder is Loader && 
-                eObj.data == Loader(contentHolder).contentLoaderInfo.sharedEvents) {
-            _swfBridge = Loader(contentHolder).contentLoaderInfo.sharedEvents;
-            
-            var sm:ISystemManager = systemManager;
-            sm.addChildBridge(_swfBridge, this);
-            removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
-                
-    		_swfBridge.addEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
-                               invalidateRequestHandler);
-        }
-    }
+	    /**
+	     *  Message dispatched from System Manager. This gives us the child bridge
+	     *  of the application we loaded.
+	     */
+	    protected function initSystemManagerCompleteEventHandler(event:Event):void {
+	        var eObj:Object = Object(event);
+	        
+	        // make sure this is the child we created by checking the loader info.
+	        if (contentHolder is Loader && 
+	                eObj.data == Loader(contentHolder).contentLoaderInfo.sharedEvents) {
+	            _swfBridge = Loader(contentHolder).contentLoaderInfo.sharedEvents;
+	            
+	            var sm:ISystemManager = systemManager;
+	            sm.addChildBridge(_swfBridge, this);
+	            removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+	                
+	    		_swfBridge.addEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
+	                               invalidateRequestHandler);
+	        }
+	    }
         
 	    /**
 	     * 
