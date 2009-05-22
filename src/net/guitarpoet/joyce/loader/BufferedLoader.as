@@ -267,8 +267,7 @@ package net.guitarpoet.joyce.loader {
 	     *  The baselinePosition of a SWFLoader is calculated
 	     *  the same as for a generic UIComponent.
 	     */
-	    override public function get baselinePosition():Number
-	    {
+	    override public function get baselinePosition():Number {
 	        if (FlexVersion.compatibilityVersion < FlexVersion.VERSION_3_0)
 	            return 0;
 	
@@ -298,27 +297,15 @@ package net.guitarpoet.joyce.loader {
 	     *
 	     *  @default true
 	     */
-	    public function get autoLoad():Boolean
-	    {
+	    public function get autoLoad():Boolean {
 	        return _autoLoad;
 	    }
 	
-	    /**
-	     *  @private
-	     */
-	    public function set autoLoad(value:Boolean):void
-	    {
-	        if (_autoLoad != value)
-	        {
+	    public function set autoLoad(value:Boolean):void {
+	        if (_autoLoad != value) {
 	            _autoLoad = value;
-	
-	            contentChanged = true;
-	
-	            invalidateProperties();
-	            invalidateSize();
-	            invalidateDisplayList();
-	
-	            dispatchEvent(new Event("autoLoadChanged"));
+
+				refreshContent("autoLoadChanged");
 	        }
 	    }
 	
@@ -347,27 +334,15 @@ package net.guitarpoet.joyce.loader {
 	     *
 	     *  @default false
 	     */
-	    public function get loadForCompatibility():Boolean
-	    {
+	    public function get loadForCompatibility():Boolean {
 	        return _loadForCompatibility;
 	    }
 	
-	    /**
-	     *  @private
-	     */
-	    public function set loadForCompatibility(value:Boolean):void
-	    {
-	        if (_loadForCompatibility != value)
-	        {
+	    public function set loadForCompatibility(value:Boolean):void {
+	        if (_loadForCompatibility != value) {
 	            _loadForCompatibility = value;
 	
-	            contentChanged = true;
-	
-	            invalidateProperties();
-	            invalidateSize();
-	            invalidateDisplayList();
-	
-	            dispatchEvent(new Event("loadForCompatibilityChanged"));
+				refreshContent("loadForCompatibilityChanged");
 	        }
 	    }
 	
@@ -386,8 +361,7 @@ package net.guitarpoet.joyce.loader {
 	    /**
 	     *  The number of bytes of the SWF or image file already loaded.
 	     */
-	    public function get bytesLoaded():Number
-	    {
+	    public function get bytesLoaded():Number {
 	        return _bytesLoaded;
 	    }
 	
@@ -406,8 +380,7 @@ package net.guitarpoet.joyce.loader {
 	    /**
 	     *  The total size of the SWF or image file.
 	     */
-	    public function get bytesTotal():Number
-	    {
+	    public function get bytesTotal():Number {
 	        return _bytesTotal;
 	    }
 	
@@ -417,13 +390,9 @@ package net.guitarpoet.joyce.loader {
 	
 	    /**
 	     *  This property contains the object that represents
-	     *  the content that was loaded in the SWFLoader control. 
-	     *
-	     *  @tiptext Returns the content of the SWFLoader.
-	     *  @helpid 3134
+	     *  the content that was loaded in this loader
 	     */
-	    public function get content():DisplayObject
-	    {
+	    public function get content():DisplayObject {
 	        if (contentHolder is Loader)
 	            return Loader(contentHolder).content;
 	
@@ -445,8 +414,7 @@ package net.guitarpoet.joyce.loader {
 	     *
 	     *  @default NaN
 	     */
-	    public function get contentHeight():Number
-	    {
+	    public function get contentHeight():Number {
 	        return contentHolder ? contentHolder.height : NaN;
 	    }
 	
@@ -454,135 +422,78 @@ package net.guitarpoet.joyce.loader {
 	    //  contentHolderHeight (private)
 	    //----------------------------------
 	
-	    /**
-	     *  @private
-	     */
-	    protected function get contentHolderHeight():Number
-	    {
-	        // For externally loaded content, use the loaderInfo structure
+	    protected function get contentHolderHeight():Number {
+			return contentHolderSize.y;
+	    }
+	    
+	    protected function get contentHolderSize() : Point {
+	   		// For externally loaded content, use the loaderInfo structure
 	        var loaderInfo:LoaderInfo;
+	        var holderWidth:int, holderHeight:int;
+	        
 	        if (contentHolder is Loader)
 	            loaderInfo = Loader(contentHolder).contentLoaderInfo;
 	
-	        if (loaderInfo)
-	        {
-	            if (loaderInfo.contentType == "application/x-shockwave-flash")
-	            {
-	                try
-	                {
-	                        if (systemManager.swfBridgeGroup)
-	                        {
-	                            var bridge:IEventDispatcher = swfBridge;
-	                            if (bridge)
-	                            {
-	                                var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
-	                                bridge.dispatchEvent(request);
-	                                return request.data.height;
-	                            }
-	                        }
+	        if (loaderInfo) {
+	            if (contentIsFlash(loaderInfo)) {
+	                try {
+                        if (swfBridge) {
+	                        var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
+	                        swfBridge.dispatchEvent(request);
+	                        return request.data.width;
+                        }
 	                        
 	                    var content:IFlexDisplayObject =
 	                        Loader(contentHolder).content as IFlexDisplayObject;
-	                    if (content)
-	                        return content.measuredHeight;
+
+	                    if (content){
+	                    	return new Point(content.measuredWidth, content.measuredHeight);
+	                    }
 	                }
-	                catch(error:Error)
-	                {
-	                    return contentHolder.height;
+	                catch(error:Error) {
+	                	return new Point(contentHolder.width, contentHolder.height);
 	                }
 	            }
-	            else
-	            {
-	                try
-	                {
+	            else {
+	                try {
 	                    var testContent:DisplayObject = Loader(contentHolder).content;
 	                }
-	                catch(error:Error)
-	                {
-	                    return contentHolder.height;
+	                catch(error:Error) {
+	                    return new Point(contentHolder.width, contentHolder.height);
 	                }
 	            }
-	
-				try
-                {
-                    return loaderInfo.height;
-                }
-                catch(error:Error)
-                {
-                    return contentHolder.height;
-                }
+				
+				try {
+					return new Point(loaderInfo.width, loaderInfo.height);
+				}
+				catch(error : Error){
+					return new Point(contentHolder.width, contentHolder.height);
+				}
 	        }
-	
-	        // For internally loaded content, use preferredHeight (if present) or height
-	        if (contentHolder is IUIComponent)
-	            return IUIComponent(contentHolder).getExplicitOrMeasuredHeight();
-	        if (contentHolder is IFlexDisplayObject)
-	            return IFlexDisplayObject(contentHolder).measuredHeight;
-	
-	        return contentHolder.height;
+	        else {
+		      	// For internally loaded content, use explicitWidth (if present) or explicitWidth
+		        if (contentHolder is IUIComponent) {
+		        	return new Point(
+		        		IUIComponent(contentHolder).getExplicitOrMeasuredWidth(),
+		        		IUIComponent(contentHolder).getExplicitOrMeasuredHeight()
+		        	);
+		        }
+		        if (contentHolder is IFlexDisplayObject) {
+		        	return new Point(
+		        		IFlexDisplayObject(contentHolder).measuredWidth,
+		        		IFlexDisplayObject(contentHolder).measuredHeight
+		        	);
+		        }
+	        }
+	        return new Point(contentHolder.width, contentHolder.height);
 	    }
 	
 	    //----------------------------------
 	    //  contentHolderWidth (private)
 	    //----------------------------------
 	
-	    protected function get contentHolderWidth():Number
-	    {
-	        // For externally loaded content, use the loaderInfo structure
-	        var loaderInfo:LoaderInfo;
-	        if (contentHolder is Loader)
-	            loaderInfo = Loader(contentHolder).contentLoaderInfo;
-	
-	        if (loaderInfo)
-	        {
-	            if (loaderInfo.contentType == "application/x-shockwave-flash")
-	            {
-	                try
-	                {
-	                        if (swfBridge)
-	                        {
-	                        var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
-	                        swfBridge.dispatchEvent(request);
-	                        return request.data.width;
-	                        }
-	                        
-	                    var content:IFlexDisplayObject =
-	                        Loader(contentHolder).content as IFlexDisplayObject;
-	                    if (content)
-	                        return content.measuredWidth;
-	                }
-	                catch(error:Error)
-	                {
-	                    return contentHolder.width;
-	                }
-	            }
-	            else
-	            {
-	                try
-	                {
-	                    var testContent:DisplayObject = Loader(contentHolder).content;
-	                }
-	                catch(error:Error)
-	                {
-	                    return contentHolder.width;
-	                }
-	            }
-				
-				try{
-					return loaderInfo.width;
-				}
-				catch(error : Error){
-					return contentHolder.width;
-				}
-	        }
-	
-	        // For internally loaded content, use explicitWidth (if present) or explicitWidth
-	        if (contentHolder is IUIComponent)
-	            return IUIComponent(contentHolder).getExplicitOrMeasuredWidth();
-	        if (contentHolder is IFlexDisplayObject)
-	            return IFlexDisplayObject(contentHolder).measuredWidth;
-	
-	        return contentHolder.width;
+	    protected function get contentHolderWidth():Number {
+			return contentHolderSize.x;
 	    }
 	
 	    //----------------------------------
@@ -600,8 +511,7 @@ package net.guitarpoet.joyce.loader {
 	     *
 	     *  @default NaN
 	     */
-	    public function get contentWidth():Number
-	    {
+	    public function get contentWidth():Number {
 	        return contentHolder ? contentHolder.width : NaN;
 	    }
 	
@@ -642,16 +552,14 @@ package net.guitarpoet.joyce.loader {
 	     *  @see flash.system.ApplicationDomain
 	     *  @see flash.system.SecurityDomain
 	     */
-	    public function get loaderContext():LoaderContext
-	    {
+	    public function get loaderContext():LoaderContext {
 	        return _loaderContext;
 	    }
 	
 	    /**
 	     *  @private
 	     */
-	    public function set loaderContext(value:LoaderContext):void
-	    {
+	    public function set loaderContext(value:LoaderContext):void {
 	        _loaderContext = value;
 	                explicitLoaderContext = true;
 	
@@ -679,16 +587,14 @@ package net.guitarpoet.joyce.loader {
 	     *
 	     *  @default true
 	     */
-	    public function get maintainAspectRatio():Boolean
-	    {
+	    public function get maintainAspectRatio():Boolean {
 	        return _maintainAspectRatio;
 	    }
 	
 	    /**
 	     *  @private
 	     */
-	    public function set maintainAspectRatio(value:Boolean):void
-	    {
+	    public function set maintainAspectRatio(value:Boolean):void {
 	        _maintainAspectRatio = value;
 	
 	        dispatchEvent(new Event("maintainAspectRatioChanged"));
@@ -739,21 +645,19 @@ package net.guitarpoet.joyce.loader {
 	    /**
 	     *  A flag that indicates whether to scale the content to fit the
 	     *  size of the control or resize the control to the content's size.
-	     *  If <code>true</code>, the content scales to fit the SWFLoader control.
-	     *  If <code>false</code>, the SWFLoader scales to fit the content. 
+	     *  If <code>true</code>, the content scales to fit the loader control.
+	     *  If <code>false</code>, the loader scales to fit the content. 
 	     *
 	     *  @default true
 	     */
-	    public function get scaleContent():Boolean
-	    {
+	    public function get scaleContent():Boolean {
 	        return _scaleContent;
 	    }
 	
 	    /**
 	     *  @private
 	     */
-	    public function set scaleContent(value:Boolean):void
-	    {
+	    public function set scaleContent(value:Boolean):void {
 	        if (_scaleContent != value)
 	        {
 	            _scaleContent = value;
@@ -788,16 +692,11 @@ package net.guitarpoet.joyce.loader {
 	     *
 	     *  @see mx.managers.CursorManager
 	     */
-	    public function get showBusyCursor():Boolean
-	    {
+	    public function get showBusyCursor():Boolean {
 	        return _showBusyCursor;
 	    }
 	
-	    /**
-	     *  @private
-	     */
-	    public function set showBusyCursor(value:Boolean):void
-	    {
+	    public function set showBusyCursor(value:Boolean):void {
 	        if (_showBusyCursor != value)
 	        {
 	            _showBusyCursor = value;
@@ -863,27 +762,17 @@ package net.guitarpoet.joyce.loader {
 	     *
 	     *  @default null
 	     */
-	    public function get source():Object
-	    {
+	    public function get source():Object {
 	        return _source;
 	    }
 	
 	    /**
 	     *  @private
 	     */
-	    public function set source(value:Object):void
-	    {
-	        if (_source != value)
-	        {
+	    public function set source(value:Object):void {
+	        if (_source != value) {
 	            _source = value;
-	
-	            contentChanged = true;
-	
-	            invalidateProperties();
-	            invalidateSize();
-	            invalidateDisplayList()
-	
-	            dispatchEvent(new Event("sourceChanged"));
+				refreshContent("sourceChanged");
 	        }
 	    }
 	
@@ -929,25 +818,15 @@ package net.guitarpoet.joyce.loader {
 	     *  @see flash.system.SecurityDomain
 	     *  @see flash.system.ApplicationDomain
 	     */
-	    public function get trustContent():Boolean
-	    {
+	    public function get trustContent():Boolean {
 	        return _trustContent;
 	    }
 	
-	    /**
-	     *  @private
-	     */
-	    public function set trustContent(value:Boolean):void
-	    {
-	        if (_trustContent != value)
-	        {
+	    public function set trustContent(value:Boolean):void {
+	        if (_trustContent != value) {
 	            _trustContent = value;
-	
-	            invalidateProperties();
-	            invalidateSize();
-	            invalidateDisplayList();
-	
-	            dispatchEvent(new Event("trustContentChanged"));
+				
+				refreshContent("trustContentChanged", false);
 	        }
 	    }
 	
@@ -960,16 +839,14 @@ package net.guitarpoet.joyce.loader {
 	    /**
 	     * @inheritDoc
 	     */    
-	    public function get swfBridge():IEventDispatcher
-	    {
+	    public function get swfBridge():IEventDispatcher {
 	        return _swfBridge;
 	    }
 	    
 	    /**
 	     * @inheritDoc
 	     */    
-	    public function get childAllowsParent():Boolean
-	    {
+	    public function get childAllowsParent():Boolean {
 	        if (!isContentLoaded)
 	            return false;
 	            
@@ -982,8 +859,7 @@ package net.guitarpoet.joyce.loader {
 	    /**
 	     * @inheritDoc
 	     */    
-	    public function get parentAllowsChild():Boolean
-	    {
+	    public function get parentAllowsChild():Boolean {
 	        if (!isContentLoaded)
 	            return false;
 	        
@@ -1002,12 +878,10 @@ package net.guitarpoet.joyce.loader {
 	    /**
 	     *  @private
 	     */
-	    override protected function commitProperties():void
-	    {
+	    override protected function commitProperties():void {
 	        super.commitProperties();
 	
-	        if (contentChanged)
-	        {
+	        if (contentChanged) {
 	            contentChanged = false;
 	
 	            if (_autoLoad)
@@ -1018,12 +892,10 @@ package net.guitarpoet.joyce.loader {
 	    /**
 	     *  @private
 	     */
-	    override protected function measure():void
-	    {
+	    override protected function measure():void {
 	        super.measure();
 	
-	        if (isContentLoaded)
-	        {
+	        if (isContentLoaded) {
 	            var oldScaleX:Number = contentHolder.scaleX;
 	            var oldScaleY:Number = contentHolder.scaleY;
 	
@@ -1036,39 +908,31 @@ package net.guitarpoet.joyce.loader {
 	            contentHolder.scaleX = oldScaleX;
 	            contentHolder.scaleY = oldScaleY;
 	        }
-	        else
-	        {
+	        else {
 	            // If we're in the process of loading new content,
 	            // keep the old measuredWidth/measuredHeight for now.
 	            // Otherwise, we size down to 0,0 for a frame and then
 	            // resize back up once the new content has loaded.
 	            // Bug 151518.
-	            if (!_source || _source == "")
-	            {
+	            if (!_source || _source == "") {
 	                measuredWidth = 0;
 	                measuredHeight = 0;
 	            }
 	        }
 	    }
 	
-	    /**
-	     *  @private
-	     */
 	    override protected function updateDisplayList(unscaledWidth:Number,
-	                                                  unscaledHeight:Number):void
-	    {
+	                                                  unscaledHeight:Number):void {
 	        super.updateDisplayList(unscaledWidth, unscaledHeight);
 	
-	        if (contentChanged)
-	        {
+	        if (contentChanged) {
 	            contentChanged = false;
 	            
 	            if (_autoLoad)
 	                load(_source);
 	        }
 	
-	        if (isContentLoaded)
-	        {
+	        if (isContentLoaded) {
 	            // We will either scale the content to the size of the SWFLoader,
 	            // or we will scale the loader to the size of the content.
 	            if (_scaleContent && !brokenImage)
@@ -1079,19 +943,16 @@ package net.guitarpoet.joyce.loader {
 	            scaleContentChanged = false;
 	        }
 	
-	        if (brokenImage && !brokenImageBorder)
-	        {
+	        if (brokenImage && !brokenImageBorder) {
 	            var skinClass:Class = getStyle("brokenImageBorderSkin");
-	            if (skinClass)
-	            {
+	            if (skinClass) {
 	                brokenImageBorder = IFlexDisplayObject(new skinClass());
 	                if (brokenImageBorder is ISimpleStyleClient)
 	                    ISimpleStyleClient(brokenImageBorder).styleName = this;
 	                addChild(DisplayObject(brokenImageBorder));
 	            }
 	        }
-	        else if (!brokenImage && brokenImageBorder)
-	        {
+	        else if (!brokenImage && brokenImageBorder) {
 	            removeChild(DisplayObject(brokenImageBorder));
 	            brokenImageBorder = null;
 	        }
@@ -1102,395 +963,364 @@ package net.guitarpoet.joyce.loader {
 	                sizeShield();
 	    }
 		
-	public function BufferedLoader(poolStrategy : PoolStrategy = null){
-		pool = new Pool(DEFAULT_POOL_LIMIT, poolStrategy);
-		pool.disposer = disposeLoader;
-		tabChildren = true;
-		tabEnabled = false;
-	}
-		
-	//--------------------------------------------------------------------------
-    //
-    //  Methods
-    //
-    //--------------------------------------------------------------------------
-
-	protected function disposeLoader(loader : *) : void {
-		if(loader is Loader){
-	        if (Loader(loader).content is Bitmap) {
-	            var imageData : Bitmap = Bitmap(Loader(loader).content);
-	            if (imageData.bitmapData)
-	                imageData.bitmapData = null; 
-	        }
-            if (useUnloadAndStop && "unloadAndStop" in loader)
-                loader["unloadAndStop"](unloadAndStopGC);
-            else 
-                Loader(loader).unload();
+		public function BufferedLoader(poolStrategy : PoolStrategy = null){
+			pool = new Pool(DEFAULT_POOL_LIMIT, poolStrategy);
+			pool.disposer = disposeLoader;
+			tabChildren = true;
+			tabEnabled = false;
 		}
-	}
+		
+		//--------------------------------------------------------------------------
+	    //
+	    //  Methods
+	    //
+	    //--------------------------------------------------------------------------
+	    
+	    protected function refreshContent(eventType : String, changeContent : Boolean = true) : void {
+		    if(changeContent)
+		    	contentChanged = true;
+	
+	        invalidateProperties();
+	        invalidateSize();
+	        invalidateDisplayList();
+	
+	        dispatchEvent(new Event(eventType));
+	    }
+	    
+	    protected function contentIsFlash(loaderInfo : LoaderInfo) : Boolean {
+	    	return loaderInfo.contentType == "application/x-shockwave-flash";
+	    }
 
-    /**
-     *  Loads an image or SWF file.
-     *  The <code>url</code> argument can reference a GIF, JPEG, PNG,
-     *  or SWF file; you cannot use this method to load an SVG file.
-     *  Instead,  you must load it using an Embed statement
-     *  with the <code>source</code> property.
-     *
-     *  @param url Absolute or relative URL of the GIF, JPEG, PNG,
-     *  or SWF file to load.
-     */
-    public function load(url:Object = null):void {
-        if (url)
-            _source = url;
+		protected function disposeLoader(loader : *) : void {
+			if(loader is Loader){
+		        if (Loader(loader).content is Bitmap) {
+		            var imageData : Bitmap = Bitmap(Loader(loader).content);
+		            if (imageData.bitmapData)
+		                imageData.bitmapData = null; 
+		        }
+	            if (useUnloadAndStop && "unloadAndStop" in loader)
+	                loader["unloadAndStop"](unloadAndStopGC);
+	            else 
+	                Loader(loader).unload();
+			}
+		}
 
-        if (contentHolder)
-        {
-            if (isContentLoaded)
-            {
-                // can get rid of bitmap data if it's an image on unload
-                // this helps with garbage collection (SDK-9533)
-                var imageData:Bitmap;
-                
-                if (contentHolder is Loader)
-                {
-                    try
-                    {
-//                        if (Loader(contentHolder).content is Bitmap)
-//                        {
-//                            imageData = Bitmap(Loader(contentHolder).content);
-//                            if (imageData.bitmapData)
-//                                imageData.bitmapData = null; 
-//                        }
-                    }
-                    catch(error:Error)
-                    {
-                        // Ignore any errors trying to access the Bitmap
-                        // b/c we may cause a security violation trying to do it
-                    }
-                
-                    if (_swfBridge)
-                    {
-                        var request:SWFBridgeEvent = new SWFBridgeEvent(
-                                                SWFBridgeEvent.BRIDGE_APPLICATION_UNLOADING,
-                                                false, false,
-                                                _swfBridge);
-                        _swfBridge.dispatchEvent(request);
-                    }
-
-                    // try the new "unloadAndStop" in FP10. If not available
-                    // then call unload.
-//                    if (useUnloadAndStop && "unloadAndStop" in contentHolder)
-//                        contentHolder["unloadAndStop"](unloadAndStopGC);
-//                    else 
-//                        Loader(contentHolder).unload();
-
-                                        if (!explicitLoaderContext)
-                                                _loaderContext = null;
-                }
-                else
-                {
-//                    if (contentHolder is Bitmap)
-//                    {
-//                        imageData = Bitmap(contentHolder);
-//                        if (imageData.bitmapData)
-//                            imageData.bitmapData = null;
-//                    }
-                }
-            }
-            else
-            {
-                if (contentHolder is Loader)
-                {
-                    try
-                    {
-                        Loader(contentHolder).close();
-                    }
-                    catch(error:Error)
-                    {
-                        // Ignore any errors thrown by close()
-                    }
-                }
-            }
-
-            // when SWFLoader/Image is used with renderer
-            // recycling and the content is a DisplayObject instance
-            // the instance can be stolen from us while
-            // we're on the free list
-            try
-            {
-                if (contentHolder.parent == this)
-                   removeChild(contentHolder);
-            }
-            catch(error:Error)
-            {
-                try
-                {
+	    /**
+	     *  Loads an image or SWF file.
+	     *  The <code>url</code> argument can reference a GIF, JPEG, PNG,
+	     *  or SWF file; you cannot use this method to load an SVG file.
+	     *  Instead,  you must load it using an Embed statement
+	     *  with the <code>source</code> property.
+	     *
+	     *  @param url Absolute or relative URL of the GIF, JPEG, PNG,
+	     *  or SWF file to load.
+	     */
+	    public function load(url:Object = null):void {
+	        if (url)
+	            _source = url;
+	
+	        if (contentHolder) {
+	            if (isContentLoaded) {
+	                // can get rid of bitmap data if it's an image on unload
+	                // this helps with garbage collection (SDK-9533)
+	                var imageData:Bitmap;
+	                
+	                if (contentHolder is Loader) {
+	                
+	                    if (_swfBridge) {
+	                        var request:SWFBridgeEvent = new SWFBridgeEvent(
+	                                                SWFBridgeEvent.BRIDGE_APPLICATION_UNLOADING,
+	                                                false, false,
+	                                                _swfBridge);
+	                        _swfBridge.dispatchEvent(request);
+	                    }
+	
+	                    if (!explicitLoaderContext)
+	                            _loaderContext = null;
+	                }
+	            }
+	            else {
+	                if (contentHolder is Loader) {
+	                    try {
+	                        Loader(contentHolder).close();
+	                    }
+	                    catch(error:Error) {
+	                        // Ignore any errors thrown by close()
+	                    }
+	                }
+	            }
+	
+	            // when SWFLoader/Image is used with renderer
+	            // recycling and the content is a DisplayObject instance
+	            // the instance can be stolen from us while
+	            // we're on the free list
+	            try {
+	                if (contentHolder.parent == this)
+	                   removeChild(contentHolder);
+	            }
+	            catch(error:Error) {
+	                try {
                         // just try to remove it anyway
                         removeChild(contentHolder);
-                }
-                catch(error1:Error)
-                {
+	                }
+	                catch(error1:Error) {
                         // Ignore any errors thrown by removeChild()
-                }
-            }
+	                }
+	            }
+	
+	            contentHolder = null;
+	        }
+	
+	        isContentLoaded = false;
+	        brokenImage = false;
+	        useUnloadAndStop = false;
+	
+	        if (!_source || _source == "")
+	            return;
+	
+	        contentHolder = loadContent(_source);
+	    }
 
-            contentHolder = null;
-        }
-
-        isContentLoaded = false;
-        brokenImage = false;
-        useUnloadAndStop = false;
-
-        if (!_source || _source == "")
-            return;
-
-        contentHolder = loadContent(_source);
-    }
-
-    /**
-     *  Unloads an image or SWF file. After this method returns the 
-     *  <code>source</code> property will be null. This is only supported
-     *  if the host Flash Player is version 10 or greater. If the host Flash 
-     *  Player is less than version 10, then this method will unload the 
-     *  content the same way as if <code>source</code> was set to null. 
-     * 
-     *  This method attempts to unload SWF files by removing references to 
-     *  EventDispatcher, NetConnection, Timer, Sound, or Video objects of the
-     *  child SWF file. As a result, the following occurs for the child SWF file
-     *  and the child SWF file's display list: 
-     *  <ul>
-     *  <li>Sounds are stopped.</li>
-     *  <li>Stage event listeners are removed.</li>
-     *  <li>Event listeners for <code>enterFrame</code>, 
-     *  <code>frameConstructed</code>, <code>exitFrame</code>,
-     *  <code>activate</code> and <code>deactivate</code> are removed.</li>
-     *  <li>Timers are stopped.</li>
-     *  <li>Camera and Microphone instances are detached</li>
-     *  <li>Movie clips are stopped.</li>
-     *  </ul>
-     * 
-     *  @param invokeGarbageCollector (default = <code>true</code>)
-     *  <code></code> &mdash; Provides a hint to the garbage collector to run
-     *  on the child SWF objects (<code>true</code>) or not (<code>false</code>).
-     *  If you are unloading many objects asynchronously, setting the 
-     *  <code>gc</code> parameter to <code>false</code> might improve application
-     *  performance. However, if the parameter is set to <code>false</code>, media
-     *  and display objects of the child SWF file might persist in memory after
-     *  the child SWF has been unloaded.  
-     */
-    public function unloadAndStop(invokeGarbageCollector:Boolean = true):void
-    {
-        useUnloadAndStop = true;
-        unloadAndStopGC = invokeGarbageCollector;
-        source = null;        // this will cause an unload
-    }
+	    /**
+	     *  Unloads an image or SWF file. After this method returns the 
+	     *  <code>source</code> property will be null. This is only supported
+	     *  if the host Flash Player is version 10 or greater. If the host Flash 
+	     *  Player is less than version 10, then this method will unload the 
+	     *  content the same way as if <code>source</code> was set to null. 
+	     * 
+	     *  This method attempts to unload SWF files by removing references to 
+	     *  EventDispatcher, NetConnection, Timer, Sound, or Video objects of the
+	     *  child SWF file. As a result, the following occurs for the child SWF file
+	     *  and the child SWF file's display list: 
+	     *  <ul>
+	     *  <li>Sounds are stopped.</li>
+	     *  <li>Stage event listeners are removed.</li>
+	     *  <li>Event listeners for <code>enterFrame</code>, 
+	     *  <code>frameConstructed</code>, <code>exitFrame</code>,
+	     *  <code>activate</code> and <code>deactivate</code> are removed.</li>
+	     *  <li>Timers are stopped.</li>
+	     *  <li>Camera and Microphone instances are detached</li>
+	     *  <li>Movie clips are stopped.</li>
+	     *  </ul>
+	     * 
+	     *  @param invokeGarbageCollector (default = <code>true</code>)
+	     *  <code></code> &mdash; Provides a hint to the garbage collector to run
+	     *  on the child SWF objects (<code>true</code>) or not (<code>false</code>).
+	     *  If you are unloading many objects asynchronously, setting the 
+	     *  <code>gc</code> parameter to <code>false</code> might improve application
+	     *  performance. However, if the parameter is set to <code>false</code>, media
+	     *  and display objects of the child SWF file might persist in memory after
+	     *  the child SWF has been unloaded.  
+	     */
+	    public function unloadAndStop(invokeGarbageCollector:Boolean = true):void {
+	        useUnloadAndStop = true;
+	        unloadAndStopGC = invokeGarbageCollector;
+	        source = null;        // this will cause an unload
+	    }
  
-    //--------------------------------------------------------------------------
-    //
-    //  ISWFLoader
-    //
-    //--------------------------------------------------------------------------
-    
-    /**
-     *  @inheritDoc
-     */  
-    public function getVisibleApplicationRect(allApplications:Boolean=false):Rectangle
-    {
-        var rect:Rectangle = getVisibleRect();
-        
-        if (allApplications)
-            rect = systemManager.getVisibleApplicationRect(rect);
-        
-        return rect;
-    }
+	    //--------------------------------------------------------------------------
+	    //
+	    //  ISWFLoader
+	    //
+	    //--------------------------------------------------------------------------
+	    
+	    /**
+	     *  @inheritDoc
+	     */  
+	    public function getVisibleApplicationRect(allApplications:Boolean=false):Rectangle {
+	        var rect:Rectangle = getVisibleRect();
+	        
+	        if (allApplications)
+	            rect = systemManager.getVisibleApplicationRect(rect);
+	        
+	        return rect;
+	    }
  
-    protected function loadContent(classOrString:Object):DisplayObject
-    {
-
-        var child:DisplayObject;
-        var cls:Class;
-        var url:String;
-        var byteArray:ByteArray;
-        var loader:Loader;
-        
-        if(pool.has(String(classOrString))){
-    		child = pool.getObject(String(classOrString)) as DisplayObject;
-    		addChild(child);
-    		contentLoaded();
-    		return child;
-    	}
-        
-        if (classOrString is Class)
-        {
-            // We've got a class. Use it.
-            cls = Class(classOrString);
-        }
-        else if (classOrString is String)
-        {
-            // We've got a string. First we'll see if it is a class name,
-            // otherwise just use the string.
-            try
-            {
-                cls = Class(systemManager.getDefinitionByName(String(classOrString)));
-            }
-            catch(e:Error)
-            { // ignore
-            }
-            url = String(classOrString);
-        }
-        else if (classOrString is ByteArray)
-        {
-            byteArray = ByteArray(classOrString);
-        }
-        else
-        {
-            // We have something that is not a class or string (XMLNode, for 
-            // example). Call toString() and try to load it.
-            url = classOrString.toString();
-        }
-
-        // Create a child UIComponent based on a class reference, such as Button.
-        if (cls)
-        {
-            contentHolder = child = new cls();
-            addChild(child);
-            contentLoaded();
-
-        }
-        else if (classOrString is DisplayObject)
-        {
-            contentHolder = child = DisplayObject(classOrString);
-            addChild(child);
-            contentLoaded();
-        }
-        else if (byteArray)
-        {
-            loader = new FlexLoader();
-            child = loader;
-            addChild(child);
-            
-            loader.contentLoaderInfo.addEventListener(
-                Event.COMPLETE, contentLoaderInfo_completeEventHandler);
-            loader.contentLoaderInfo.addEventListener(
-                Event.INIT, contentLoaderInfo_initEventHandler);
-            loader.contentLoaderInfo.addEventListener(
-                Event.UNLOAD, contentLoaderInfo_unloadEventHandler);
-            
-            // if loaderContext null, it will use default, which is AppDomain
-            // of child of Loader's context
-            loader.loadBytes(byteArray, loaderContext);
-        }
-        else if (url)
-        {
-            // Create an instance of the Flash Player Loader class to do all the work
-            loader = new FlexLoader();
-            child = loader;
-
-            // addChild needs to be called before load()
-            addChild(loader);
-
-            // Forward the events from the Flash Loader to anyone
-            // who has registered as an event listener on this Loader.
-            loader.contentLoaderInfo.addEventListener(
-                Event.COMPLETE, contentLoaderInfo_completeEventHandler);
-            loader.contentLoaderInfo.addEventListener(
-                HTTPStatusEvent.HTTP_STATUS, contentLoaderInfo_httpStatusEventHandler);
-            loader.contentLoaderInfo.addEventListener(
-                Event.INIT, contentLoaderInfo_initEventHandler);
-            loader.contentLoaderInfo.addEventListener(
-                IOErrorEvent.IO_ERROR, contentLoaderInfo_ioErrorEventHandler);
-            loader.contentLoaderInfo.addEventListener(
-                Event.OPEN, contentLoaderInfo_openEventHandler);
-            loader.contentLoaderInfo.addEventListener(
-                ProgressEvent.PROGRESS, contentLoaderInfo_progressEventHandler);
-            loader.contentLoaderInfo.addEventListener(
-                SecurityErrorEvent.SECURITY_ERROR, contentLoaderInfo_securityErrorEventHandler);
-            loader.contentLoaderInfo.addEventListener(
-                Event.UNLOAD, contentLoaderInfo_unloadEventHandler);
-            
-            // are we in a debug player and this was a debug=true request
-            if ( (Capabilities.isDebugger == true) && 
-                 (url.indexOf(".jpg") == -1) && 
-                 (LoaderUtil.normalizeURL(
-                 Application.application.systemManager.loaderInfo).indexOf("debug=true") > -1) )
-                url = url + ( (url.indexOf("?") > -1) ? "&debug=true" : "?debug=true" );
-
-            // make relative paths relative to the SWF loading it, not the top-level SWF
-            if (!(url.indexOf(":") > -1 || url.indexOf("/") == 0 || url.indexOf("\\") == 0))
-            {
-                var rootURL:String;
-                if (SystemManagerGlobals.bootstrapLoaderInfoURL != null && SystemManagerGlobals.bootstrapLoaderInfoURL != "")
-                    rootURL = SystemManagerGlobals.bootstrapLoaderInfoURL;
-                else if (root)
-                    rootURL = LoaderUtil.normalizeURL(root.loaderInfo);
-                else if (systemManager)
-                    rootURL = LoaderUtil.normalizeURL(DisplayObject(systemManager).loaderInfo);
-
-                if (rootURL)
-                {
-                    var lastIndex:int = Math.max(rootURL.lastIndexOf("\\"), rootURL.lastIndexOf("/"));
-                    if (lastIndex != -1)
-                        url = rootURL.substr(0, lastIndex + 1) + url;
-                }
-            }
-
-            requestedURL = new URLRequest(url);
-                        
-            var lc:LoaderContext = loaderContext;
-            if (!lc)
-            {
-                lc = new LoaderContext();
-                _loaderContext = lc;
-                
-                // To get a peer application domain (relative to framework classes), 
-                // get the topmost parent domain of the current domain. This
-                // will either be the application domain of the 
-                // bootstrap loader (non-framework classes), or null. Either way we get
-                // an application domain free of framework classes. 
-                if (loadForCompatibility) 
-                {
-                        // the AD.currentDomain.parentDomain could be null, 
-                        // the domain of the top-level system manager, or
-                        // the bootstrap loader. The bootstrap loader will always be topmost
-                        // if it is present.
-                                var currentDomain:ApplicationDomain = ApplicationDomain.currentDomain.parentDomain;
-                                var topmostDomain:ApplicationDomain = null;
-                                while (currentDomain)
-                                {
-                                                topmostDomain = currentDomain;
-                                                currentDomain = currentDomain.parentDomain;
-                                }
-                        lc.applicationDomain = new ApplicationDomain(topmostDomain);
-                                        
-                }
-                        
-                if (trustContent)
-                {
-                    lc.securityDomain = SecurityDomain.currentDomain;
-                }
-                else if (!loadForCompatibility)
-                {
-                    attemptingChildAppDomain = true;
-                    // assume the best, which is that it is in the same domain and
-                    // we can make it a child app domain.
-                    lc.applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
-                }
-            }
-
-            loader.load(requestedURL, lc);
-        }
-        else
-        {
-            var message:String = resourceManager.getString(
-                "controls", "notLoadable", [ source ]);
-            throw new Error(message);
-        }
-
-        invalidateDisplayList();
-
-		pool.addObject(String(classOrString), child);
-        return child;
-    }
+	    protected function loadContent(classOrString:Object):DisplayObject {
+	        var child:DisplayObject;
+	        var cls:Class;
+	        var url:String;
+	        var byteArray:ByteArray;
+	        var loader:Loader;
+	        
+	        // Let the pool do the trick.
+	        if(pool.has(String(classOrString))){
+	    		child = pool.getObject(String(classOrString)) as DisplayObject;
+	    		addChild(child);
+	    		contentLoaded();
+	    		return child;
+	    	}
+	    	
+	        if (classOrString is Class) {
+	            // We've got a class. Use it.
+	            cls = Class(classOrString);
+	        }
+	        else if (classOrString is String)
+	        {
+	            // We've got a string. First we'll see if it is a class name,
+	            // otherwise just use the string.
+	            try
+	            {
+	                cls = Class(systemManager.getDefinitionByName(String(classOrString)));
+	            }
+	            catch(e:Error)
+	            { // ignore
+	            }
+	            url = String(classOrString);
+	        }
+	        else if (classOrString is ByteArray)
+	        {
+	            byteArray = ByteArray(classOrString);
+	        }
+	        else
+	        {
+	            // We have something that is not a class or string (XMLNode, for 
+	            // example). Call toString() and try to load it.
+	            url = classOrString.toString();
+	        }
+	
+	        // Create a child UIComponent based on a class reference, such as Button.
+	        if (cls)
+	        {
+	            contentHolder = child = new cls();
+	            addChild(child);
+	            contentLoaded();
+	
+	        }
+	        else if (classOrString is DisplayObject)
+	        {
+	            contentHolder = child = DisplayObject(classOrString);
+	            addChild(child);
+	            contentLoaded();
+	        }
+	        else if (byteArray)
+	        {
+	            loader = new FlexLoader();
+	            child = loader;
+	            addChild(child);
+	            
+	            loader.contentLoaderInfo.addEventListener(
+	                Event.COMPLETE, contentLoaderInfo_completeEventHandler);
+	            loader.contentLoaderInfo.addEventListener(
+	                Event.INIT, contentLoaderInfo_initEventHandler);
+	            loader.contentLoaderInfo.addEventListener(
+	                Event.UNLOAD, contentLoaderInfo_unloadEventHandler);
+	            
+	            // if loaderContext null, it will use default, which is AppDomain
+	            // of child of Loader's context
+	            loader.loadBytes(byteArray, loaderContext);
+	        }
+	        else if (url)
+	        {
+	            // Create an instance of the Flash Player Loader class to do all the work
+	            loader = new FlexLoader();
+	            child = loader;
+	
+	            // addChild needs to be called before load()
+	            addChild(loader);
+	
+	            // Forward the events from the Flash Loader to anyone
+	            // who has registered as an event listener on this Loader.
+	            loader.contentLoaderInfo.addEventListener(
+	                Event.COMPLETE, contentLoaderInfo_completeEventHandler);
+	            loader.contentLoaderInfo.addEventListener(
+	                HTTPStatusEvent.HTTP_STATUS, contentLoaderInfo_httpStatusEventHandler);
+	            loader.contentLoaderInfo.addEventListener(
+	                Event.INIT, contentLoaderInfo_initEventHandler);
+	            loader.contentLoaderInfo.addEventListener(
+	                IOErrorEvent.IO_ERROR, contentLoaderInfo_ioErrorEventHandler);
+	            loader.contentLoaderInfo.addEventListener(
+	                Event.OPEN, contentLoaderInfo_openEventHandler);
+	            loader.contentLoaderInfo.addEventListener(
+	                ProgressEvent.PROGRESS, contentLoaderInfo_progressEventHandler);
+	            loader.contentLoaderInfo.addEventListener(
+	                SecurityErrorEvent.SECURITY_ERROR, contentLoaderInfo_securityErrorEventHandler);
+	            loader.contentLoaderInfo.addEventListener(
+	                Event.UNLOAD, contentLoaderInfo_unloadEventHandler);
+	            
+	            // are we in a debug player and this was a debug=true request
+	            if ( (Capabilities.isDebugger == true) && 
+	                 (url.indexOf(".jpg") == -1) && 
+	                 (LoaderUtil.normalizeURL(
+	                 Application.application.systemManager.loaderInfo).indexOf("debug=true") > -1) )
+	                url = url + ( (url.indexOf("?") > -1) ? "&debug=true" : "?debug=true" );
+	
+	            // make relative paths relative to the SWF loading it, not the top-level SWF
+	            if (!(url.indexOf(":") > -1 || url.indexOf("/") == 0 || url.indexOf("\\") == 0))
+	            {
+	                var rootURL:String;
+	                if (SystemManagerGlobals.bootstrapLoaderInfoURL != null && SystemManagerGlobals.bootstrapLoaderInfoURL != "")
+	                    rootURL = SystemManagerGlobals.bootstrapLoaderInfoURL;
+	                else if (root)
+	                    rootURL = LoaderUtil.normalizeURL(root.loaderInfo);
+	                else if (systemManager)
+	                    rootURL = LoaderUtil.normalizeURL(DisplayObject(systemManager).loaderInfo);
+	
+	                if (rootURL)
+	                {
+	                    var lastIndex:int = Math.max(rootURL.lastIndexOf("\\"), rootURL.lastIndexOf("/"));
+	                    if (lastIndex != -1)
+	                        url = rootURL.substr(0, lastIndex + 1) + url;
+	                }
+	            }
+	
+	            requestedURL = new URLRequest(url);
+	                        
+	            var lc:LoaderContext = loaderContext;
+	            if (!lc)
+	            {
+	                lc = new LoaderContext();
+	                _loaderContext = lc;
+	                
+	                // To get a peer application domain (relative to framework classes), 
+	                // get the topmost parent domain of the current domain. This
+	                // will either be the application domain of the 
+	                // bootstrap loader (non-framework classes), or null. Either way we get
+	                // an application domain free of framework classes. 
+	                if (loadForCompatibility) 
+	                {
+	                        // the AD.currentDomain.parentDomain could be null, 
+	                        // the domain of the top-level system manager, or
+	                        // the bootstrap loader. The bootstrap loader will always be topmost
+	                        // if it is present.
+	                                var currentDomain:ApplicationDomain = ApplicationDomain.currentDomain.parentDomain;
+	                                var topmostDomain:ApplicationDomain = null;
+	                                while (currentDomain)
+	                                {
+	                                                topmostDomain = currentDomain;
+	                                                currentDomain = currentDomain.parentDomain;
+	                                }
+	                        lc.applicationDomain = new ApplicationDomain(topmostDomain);
+	                                        
+	                }
+	                        
+	                if (trustContent)
+	                {
+	                    lc.securityDomain = SecurityDomain.currentDomain;
+	                }
+	                else if (!loadForCompatibility)
+	                {
+	                    attemptingChildAppDomain = true;
+	                    // assume the best, which is that it is in the same domain and
+	                    // we can make it a child app domain.
+	                    lc.applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
+	                }
+	            }
+	
+	            loader.load(requestedURL, lc);
+	        }
+	        else
+	        {
+	            var message:String = resourceManager.getString(
+	                "controls", "notLoadable", [ source ]);
+	            throw new Error(message);
+	        }
+	
+	        invalidateDisplayList();
+	
+			pool.addObject(String(classOrString), child);
+	        return child;
+	    }
 
     /**
      *  Called when the content has successfully loaded.
