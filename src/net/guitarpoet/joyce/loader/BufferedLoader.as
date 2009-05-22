@@ -1155,46 +1155,39 @@ package net.guitarpoet.joyce.loader {
 	            // We've got a class. Use it.
 	            cls = Class(classOrString);
 	        }
-	        else if (classOrString is String)
-	        {
+	        else if (classOrString is String) {
 	            // We've got a string. First we'll see if it is a class name,
 	            // otherwise just use the string.
-	            try
-	            {
+	            try {
 	                cls = Class(systemManager.getDefinitionByName(String(classOrString)));
 	            }
-	            catch(e:Error)
-	            { // ignore
+	            catch(e:Error) { 
+	            	// ignore
 	            }
 	            url = String(classOrString);
 	        }
-	        else if (classOrString is ByteArray)
-	        {
+	        else if (classOrString is ByteArray) {
 	            byteArray = ByteArray(classOrString);
 	        }
-	        else
-	        {
+	        else {
 	            // We have something that is not a class or string (XMLNode, for 
 	            // example). Call toString() and try to load it.
 	            url = classOrString.toString();
 	        }
 	
 	        // Create a child UIComponent based on a class reference, such as Button.
-	        if (cls)
-	        {
+	        if (cls) {
 	            contentHolder = child = new cls();
 	            addChild(child);
 	            contentLoaded();
 	
 	        }
-	        else if (classOrString is DisplayObject)
-	        {
+	        else if (classOrString is DisplayObject) {
 	            contentHolder = child = DisplayObject(classOrString);
 	            addChild(child);
 	            contentLoaded();
 	        }
-	        else if (byteArray)
-	        {
+	        else if (byteArray) {
 	            loader = new FlexLoader();
 	            child = loader;
 	            addChild(child);
@@ -1210,8 +1203,7 @@ package net.guitarpoet.joyce.loader {
 	            // of child of Loader's context
 	            loader.loadBytes(byteArray, loaderContext);
 	        }
-	        else if (url)
-	        {
+	        else if (url) {
 	            // Create an instance of the Flash Player Loader class to do all the work
 	            loader = new FlexLoader();
 	            child = loader;
@@ -1246,8 +1238,7 @@ package net.guitarpoet.joyce.loader {
 	                url = url + ( (url.indexOf("?") > -1) ? "&debug=true" : "?debug=true" );
 	
 	            // make relative paths relative to the SWF loading it, not the top-level SWF
-	            if (!(url.indexOf(":") > -1 || url.indexOf("/") == 0 || url.indexOf("\\") == 0))
-	            {
+	            if (!(url.indexOf(":") > -1 || url.indexOf("/") == 0 || url.indexOf("\\") == 0)) {
 	                var rootURL:String;
 	                if (SystemManagerGlobals.bootstrapLoaderInfoURL != null && SystemManagerGlobals.bootstrapLoaderInfoURL != "")
 	                    rootURL = SystemManagerGlobals.bootstrapLoaderInfoURL;
@@ -1256,8 +1247,7 @@ package net.guitarpoet.joyce.loader {
 	                else if (systemManager)
 	                    rootURL = LoaderUtil.normalizeURL(DisplayObject(systemManager).loaderInfo);
 	
-	                if (rootURL)
-	                {
+	                if (rootURL) {
 	                    var lastIndex:int = Math.max(rootURL.lastIndexOf("\\"), rootURL.lastIndexOf("/"));
 	                    if (lastIndex != -1)
 	                        url = rootURL.substr(0, lastIndex + 1) + url;
@@ -1267,8 +1257,7 @@ package net.guitarpoet.joyce.loader {
 	            requestedURL = new URLRequest(url);
 	                        
 	            var lc:LoaderContext = loaderContext;
-	            if (!lc)
-	            {
+	            if (!lc) {
 	                lc = new LoaderContext();
 	                _loaderContext = lc;
 	                
@@ -1277,29 +1266,24 @@ package net.guitarpoet.joyce.loader {
 	                // will either be the application domain of the 
 	                // bootstrap loader (non-framework classes), or null. Either way we get
 	                // an application domain free of framework classes. 
-	                if (loadForCompatibility) 
-	                {
-	                        // the AD.currentDomain.parentDomain could be null, 
-	                        // the domain of the top-level system manager, or
-	                        // the bootstrap loader. The bootstrap loader will always be topmost
-	                        // if it is present.
-	                                var currentDomain:ApplicationDomain = ApplicationDomain.currentDomain.parentDomain;
-	                                var topmostDomain:ApplicationDomain = null;
-	                                while (currentDomain)
-	                                {
-	                                                topmostDomain = currentDomain;
-	                                                currentDomain = currentDomain.parentDomain;
-	                                }
-	                        lc.applicationDomain = new ApplicationDomain(topmostDomain);
-	                                        
+	                if (loadForCompatibility)  {
+                        // the AD.currentDomain.parentDomain could be null, 
+                        // the domain of the top-level system manager, or
+                        // the bootstrap loader. The bootstrap loader will always be topmost
+                        // if it is present.
+                        var currentDomain:ApplicationDomain = ApplicationDomain.currentDomain.parentDomain;
+                        var topmostDomain:ApplicationDomain = null;
+                        while (currentDomain){
+                                        topmostDomain = currentDomain;
+                                        currentDomain = currentDomain.parentDomain;
+                        }
+                        lc.applicationDomain = new ApplicationDomain(topmostDomain);                            
 	                }
 	                        
-	                if (trustContent)
-	                {
+	                if (trustContent) {
 	                    lc.securityDomain = SecurityDomain.currentDomain;
 	                }
-	                else if (!loadForCompatibility)
-	                {
+	                else if (!loadForCompatibility) {
 	                    attemptingChildAppDomain = true;
 	                    // assume the best, which is that it is in the same domain and
 	                    // we can make it a child app domain.
@@ -1309,8 +1293,7 @@ package net.guitarpoet.joyce.loader {
 	
 	            loader.load(requestedURL, lc);
 	        }
-	        else
-	        {
+	        else {
 	            var message:String = resourceManager.getString(
 	                "controls", "notLoadable", [ source ]);
 	            throw new Error(message);
@@ -1322,405 +1305,348 @@ package net.guitarpoet.joyce.loader {
 	        return child;
 	    }
 
-    /**
-     *  Called when the content has successfully loaded.
-     */
-    protected function contentLoaded():void
-    {
-        isContentLoaded = true;
+	    /**
+	     *  Called when the content has successfully loaded.
+	     */
+	    protected function contentLoaded():void {
+	        isContentLoaded = true;
+	
+	        // For externally loaded content, use the loaderInfo structure
+	        var loaderInfo:LoaderInfo;
+	        if (contentHolder is Loader)
+	            loaderInfo = Loader(contentHolder).contentLoaderInfo;
+	
+	        resizableContent = false;
+	        if (loaderInfo) {
+	            if (contentIsFlash(loaderInfo))
+	                resizableContent = true;
+	
+	            if (resizableContent) {
+	                try {
+	                    if (Loader(contentHolder).content is IFlexDisplayObject)
+							flexContent = true;
+	                    else
+	                        flexContent = swfBridge != null;
+	                }
+	                catch(e:Error) {
+	                    flexContent = swfBridge != null;
+	                }
+	            }
+	        }
+	
+	        try {
+	            if (tabChildren &&
+	                contentHolder is Loader &&
+	                (contentIsFlash(loaderInfo) ||
+	                Loader(contentHolder).content is DisplayObjectContainer)) {
+	                Loader(contentHolder).tabChildren = true;
+	                DisplayObjectContainer(Loader(contentHolder).content).tabChildren = true;
+	            }
+	        }
+	        catch(e:Error) {
+	            // eat security errors from x-domain content.
+	        }
+	
+	        invalidateSize();
+	        invalidateDisplayList();
+	    }
 
-        // For externally loaded content, use the loaderInfo structure
-        var loaderInfo:LoaderInfo;
-        if (contentHolder is Loader)
-            loaderInfo = Loader(contentHolder).contentLoaderInfo;
+	    /**
+	     *  @private
+	     *  If scaleContent = true then two situations arise:
+	     *  1) the SWFLoader has explicitWidth/Height set so we
+	     *  simply scale or resize the content to those dimensions; or
+	     *  2) the SWFLoader doesn't have explicitWidth/Height.
+	     *  In this case we should have had our measure() method called
+	     *  which would set the measuredWidth/Height to that of the content,
+	     *  and when we pass through this code we should just end up at scale = 1.0.
+	     */
+	    protected function doScaleContent():void {
+	        if (!isContentLoaded)
+	            return;
+	
+	        // if not a SWF, then we scale it, otherwise we just set the size of the SWF.
+	        if (!resizableContent || (maintainAspectRatio && !flexContent)) {
+	            // Make sure any previous scaling is undone.
+	            unScaleContent();
+	
+	            // Scale the content to the size of the SWFLoader, preserving aspect ratio.
+	            var interiorWidth:Number = unscaledWidth;
+	            var interiorHeight:Number = unscaledHeight;
+	            var contentWidth:Number = contentHolderWidth;
+	            var contentHeight:Number = contentHolderHeight;
+	
+	            var x:Number = 0;
+	            var y:Number = 0;
+	            
+	            // bug 84294 a swf may still not have size at this point
+	            var newXScale:Number = contentWidth == 0 ?
+	                                   1 :
+	                                   interiorWidth / contentWidth;
+	            var newYScale:Number = contentHeight == 0 ?
+	                                   1 :
+	                                   interiorHeight / contentHeight;
+	            
+	            var scale:Number;
+	
+	            if (_maintainAspectRatio) {
+	                if (newXScale > newYScale) {
+	                    x = Math.floor((interiorWidth - contentWidth * newYScale) *
+	                                   getHorizontalAlignValue());
+	                    scale = newYScale; 
+	                }
+	                else {
+	                    y = Math.floor((interiorHeight - contentHeight * newXScale) *
+	                                   getVerticalAlignValue());
+	                    scale = newXScale;
+	                }
+	
+	                // Scale by the same amount in both directions.
+	                contentHolder.scaleX = scale;
+	                contentHolder.scaleY = scale;
+	            }
+	            else {
+	                contentHolder.scaleX = newXScale;
+	                contentHolder.scaleY = newYScale;
+	            }
+	
+	            contentHolder.x = x;
+	            contentHolder.y = y;
+	
+	        }
+	        else {
+	            contentHolder.x = 0;
+	            contentHolder.y = 0;
+	
+	            var w:Number = unscaledWidth;
+	            var h:Number = unscaledHeight;
+	
+	            if (contentHolder is Loader) {
+	                var holder:Loader = Loader(contentHolder);
+	                try
+	                {
+	                    // don't resize contentHolder until after it is layed out
+	                    if (getContentSize().x > 0)
+	                    {
+	                        var sizeSet:Boolean = false;
+	                        
+	                        if (contentIsFlash(holder.contentLoaderInfo)) {
+	                            if (childAllowsParent) {
+	                                if (holder.content is IFlexDisplayObject) {
+	                                    IFlexDisplayObject(holder.content).setActualSize(w, h);
+	                                    sizeSet = true;
+	                                }
+	                            }
+	                            
+	                            if (!sizeSet) {
+	                                if (swfBridge) {
+	                                    swfBridge.dispatchEvent(new SWFBridgeRequest(SWFBridgeRequest.SET_ACTUAL_SIZE_REQUEST, false, false, null,
+											{ width: w, height: h}));
+	                                    sizeSet = true;
+	                                }
+	                            }                               
+	                        }
+	                        else {
+	                            // Bug 142705 - we can't just set width and height here. If the SWF content
+	                            // does not fill the stage, the width/height of the content holder is NOT
+	                            // the same as the loaderInfo width/height. If we just set width/height
+	                            // here is can scale the content in unpredictable ways.
+	                            var lInfo:LoaderInfo = holder.contentLoaderInfo;
+	
+	                            if (lInfo) {
+	                                contentHolder.scaleX = w / lInfo.width;
+	                                contentHolder.scaleY = h / lInfo.height;
+	                                sizeSet = true;
+	                            }
+	                        }
+	                        
+	                        // set the size of the loader now if we haven't set the content size yet.
+	                        if (!sizeSet) {
+	                            contentHolder.width = w;
+	                            contentHolder.height = h;
+	                        }
+	                    }
+	                    else if (childAllowsParent &&
+	                             !(holder.content is IFlexDisplayObject)) {
+	                        contentHolder.width = w;
+	                        contentHolder.height = h;
+	                    }
+	                }
+	                catch(error:Error) {
+	                    contentHolder.width = w;
+	                    contentHolder.height = h;
+	                }
+	                
+	                if (!parentAllowsChild)
+	                        contentHolder.scrollRect = new Rectangle(0, 0, 
+															w / contentHolder.scaleX, 
+															h / contentHolder.scaleY);
+	            }
+	            else {
+	                contentHolder.width = w;
+	                contentHolder.height = h;
+	            }
+	        }
+	    }
 
-        resizableContent = false;
-        if (loaderInfo)
-        {
-            if (loaderInfo.contentType == "application/x-shockwave-flash")
-                resizableContent = true;
-
-            if (resizableContent)
-            {
-                try 
-                {
-                        if (Loader(contentHolder).content is IFlexDisplayObject)
-                                                flexContent = true;
-                                        else
-                            flexContent = swfBridge != null;
-                }
-                catch(e:Error)
-                {
-                        // trace("contentLoader: " + e);
-                    flexContent = swfBridge != null;
-                }
-            }
-        }
-
-        try
-        {
-            if (tabChildren &&
-                contentHolder is Loader &&
-                (loaderInfo.contentType == "application/x-shockwave-flash" ||
-                Loader(contentHolder).content is DisplayObjectContainer))
-            {
-                Loader(contentHolder).tabChildren = true;
-                DisplayObjectContainer(Loader(contentHolder).content).tabChildren = true;
-            }
-        }
-        catch(e:Error)
-        {
-            // eat security errors from x-domain content.
-        }
-
-        invalidateSize();
-        invalidateDisplayList();
-    }
-
-    /**
-     *  @private
-     *  If scaleContent = true then two situations arise:
-     *  1) the SWFLoader has explicitWidth/Height set so we
-     *  simply scale or resize the content to those dimensions; or
-     *  2) the SWFLoader doesn't have explicitWidth/Height.
-     *  In this case we should have had our measure() method called
-     *  which would set the measuredWidth/Height to that of the content,
-     *  and when we pass through this code we should just end up at scale = 1.0.
-     */
-    protected function doScaleContent():void
-    {
-        if (!isContentLoaded)
-            return;
-
-        // if not a SWF, then we scale it, otherwise we just set the size of the SWF.
-        if (!resizableContent || (maintainAspectRatio && !flexContent))
-        {
-            // Make sure any previous scaling is undone.
-            unScaleContent();
-
-            // Scale the content to the size of the SWFLoader, preserving aspect ratio.
-            var interiorWidth:Number = unscaledWidth;
-            var interiorHeight:Number = unscaledHeight;
-            var contentWidth:Number = contentHolderWidth;
-            var contentHeight:Number = contentHolderHeight;
-
-            var x:Number = 0;
-            var y:Number = 0;
-            
-            // bug 84294 a swf may still not have size at this point
-            var newXScale:Number = contentWidth == 0 ?
-                                   1 :
-                                   interiorWidth / contentWidth;
-            var newYScale:Number = contentHeight == 0 ?
-                                   1 :
-                                   interiorHeight / contentHeight;
-            
-            var scale:Number;
-
-            if (_maintainAspectRatio)
-            {
-                if (newXScale > newYScale)
-                {
-                    x = Math.floor((interiorWidth - contentWidth * newYScale) *
-                                   getHorizontalAlignValue());
-                    scale = newYScale;
-                }
-                else
-                {
-                    y = Math.floor((interiorHeight - contentHeight * newXScale) *
-                                   getVerticalAlignValue());
-                    scale = newXScale;
-                }
-
-                // Scale by the same amount in both directions.
-                contentHolder.scaleX = scale;
-                contentHolder.scaleY = scale;
-            }
-            else
-            {
-                contentHolder.scaleX = newXScale;
-                contentHolder.scaleY = newYScale;
-            }
-
-            contentHolder.x = x;
-            contentHolder.y = y;
-
-        }
-        else
-        {
-            contentHolder.x = 0;
-            contentHolder.y = 0;
-
-            var w:Number = unscaledWidth;
-            var h:Number = unscaledHeight;
-
-            if (contentHolder is Loader)
-            {
-                var holder:Loader = Loader(contentHolder);
-                try
-                {
-                    // don't resize contentHolder until after it is layed out
-                    if (getContentSize().x > 0)
-                    {
-                        var sizeSet:Boolean = false;
-                        
-                            if (holder.contentLoaderInfo.contentType == "application/x-shockwave-flash")
-                        {
-                                                        if (childAllowsParent)
-                                                        {
-                                                                if (holder.content is IFlexDisplayObject)
-                                                                {
-                                                                        IFlexDisplayObject(holder.content).setActualSize(w, h);
-                                                                        sizeSet = true;
-                                                                }
-                                                        }
-                                                        
-                                                        if (!sizeSet) 
-                                                        {
-                                                                if (swfBridge)
-                                                                {
-                                                                        swfBridge.dispatchEvent(new SWFBridgeRequest(SWFBridgeRequest.SET_ACTUAL_SIZE_REQUEST, false, false, null,
-                                                                                                                                                                                { width: w, height: h}));
-                                                                        sizeSet = true;
-                                                                }
-                                                        }                               
-                        }
-//                        if (holder.content is IFlexDisplayObject)
-//                        {
-//                            IFlexDisplayObject(holder.content).setActualSize(w, h);
-//                        }
-                        else
-                        {
-                            // Bug 142705 - we can't just set width and height here. If the SWF content
-                            // does not fill the stage, the width/height of the content holder is NOT
-                            // the same as the loaderInfo width/height. If we just set width/height
-                            // here is can scale the content in unpredictable ways.
-                            var lInfo:LoaderInfo = holder.contentLoaderInfo;
-
-                            if (lInfo)
-                            {
-                                contentHolder.scaleX = w / lInfo.width;
-                                contentHolder.scaleY = h / lInfo.height;
-                                sizeSet = true;
-                            }
-                        }
-                        
-                        // set the size of the loader now if we haven't set the content size yet.
-                        if (!sizeSet)
-                        {
-                            contentHolder.width = w;
-                            contentHolder.height = h;
-                        }
-                    }
-                    else if (childAllowsParent &&
-                             !(holder.content is IFlexDisplayObject))
-                    {
-                        contentHolder.width = w;
-                        contentHolder.height = h;
-                    }
-                }
-                catch(error:Error)
-                {
-                    contentHolder.width = w;
-                    contentHolder.height = h;
-                }
-                
-                if (!parentAllowsChild)
-                        contentHolder.scrollRect = new Rectangle(0, 0, 
-                                                                                                         w / contentHolder.scaleX, 
-                                                                                                         h / contentHolder.scaleY);
-            }
-            else
-            {
-                contentHolder.width = w;
-                contentHolder.height = h;
-            }
-        }
-    }
-
-    /**
-     *  @private
-     *  If scaleContent = false then two situations arise:
-     *  1) the SWFLoader has been given explicitWidth/Height so we don't change
-     *  the size of the SWFLoader and simply place the content at 0,0
-     *  and don't scale it and clip it if needed; or
-     *  2) the SWFLoader does not have explicitWidth/Height in which case
-     *  our measure() method should have been called and we should have
-     *  been given the right size.
-     *  However if some other constraint applies we simply clip as in
-     *  situation #1, which is why there is only one code path in here.
-     */
-    protected function doScaleLoader():void
-    {
-        if (!isContentLoaded)
-            return;
-
-        unScaleContent();
-
-        var w:Number = unscaledWidth;
-        var h:Number = unscaledHeight;
-
-        if ((contentHolderWidth > w) ||
-            (contentHolderHeight > h) ||
-             !parentAllowsChild)
-        {
-            contentHolder.scrollRect = new Rectangle(0, 0, w, h);
-        }
-        else
-        {
-            contentHolder.scrollRect = null;
-        }
-
-        contentHolder.x = (w - contentHolderWidth) * getHorizontalAlignValue();
-        contentHolder.y = (h - contentHolderHeight) * getVerticalAlignValue();
-    }
-
-    /**
-     *  @private
-     */
-    protected function unScaleContent():void
-    {
-        contentHolder.scaleX = 1.0;
-        contentHolder.scaleY = 1.0;
-        contentHolder.x = 0;
-        contentHolder.y = 0;
-    }
-
-
-    protected function getHorizontalAlignValue():Number
-    {
-        var horizontalAlign:String = getStyle("horizontalAlign");
-
-        if (horizontalAlign == "left")
-            return 0;
-        else if (horizontalAlign == "right")
-            return 1;
-
-        // default = center
-        return 0.5;
-    }
-
-    protected function getVerticalAlignValue():Number
-    {
-        var verticalAlign:String = getStyle("verticalAlign");
-
-        if (verticalAlign == "top")
-            return 0;
-        else if (verticalAlign == "bottom")
-            return 1;
-
-        // default = middle
-        return 0.5;
-    }
+	    /**
+	     *  @private
+	     *  If scaleContent = false then two situations arise:
+	     *  1) the SWFLoader has been given explicitWidth/Height so we don't change
+	     *  the size of the SWFLoader and simply place the content at 0,0
+	     *  and don't scale it and clip it if needed; or
+	     *  2) the SWFLoader does not have explicitWidth/Height in which case
+	     *  our measure() method should have been called and we should have
+	     *  been given the right size.
+	     *  However if some other constraint applies we simply clip as in
+	     *  situation #1, which is why there is only one code path in here.
+	     */
+	    protected function doScaleLoader():void {
+	        if (!isContentLoaded)
+	            return;
+	
+	        unScaleContent();
+	
+	        var w:Number = unscaledWidth;
+	        var h:Number = unscaledHeight;
+	
+	        if ((contentHolderWidth > w) ||
+	            (contentHolderHeight > h) ||
+	             !parentAllowsChild) {
+	            contentHolder.scrollRect = new Rectangle(0, 0, w, h);
+	        }
+	        else {
+	            contentHolder.scrollRect = null;
+	        }
+	
+	        contentHolder.x = (w - contentHolderWidth) * getHorizontalAlignValue();
+	        contentHolder.y = (h - contentHolderHeight) * getVerticalAlignValue();
+	    }
+	
+	    /**
+	     *  @private
+	     */
+	    protected function unScaleContent():void {
+	        contentHolder.scaleX = 1.0;
+	        contentHolder.scaleY = 1.0;
+	        contentHolder.x = 0;
+	        contentHolder.y = 0;
+	    }
+	
+	
+	    protected function getHorizontalAlignValue():Number {
+	        var horizontalAlign:String = getStyle("horizontalAlign");
+	
+	        if (horizontalAlign == "left")
+	            return 0;
+	        else if (horizontalAlign == "right")
+	            return 1;
+	
+	        // default = center
+	        return 0.5;
+	    }
+	
+	    protected function getVerticalAlignValue():Number {
+	        var verticalAlign:String = getStyle("verticalAlign");
+	
+	        if (verticalAlign == "top")
+	            return 0;
+	        else if (verticalAlign == "bottom")
+	            return 1;
+	
+	        // default = middle
+	        return 0.5;
+	    }
     
-    /**
-     *  @private
-     *  
-     *  Dispatch an invalidate request to a parent application using
-     *  a sandbox bridge.
-     */     
-    protected function dispatchInvalidateRequest(invalidateProperites:Boolean,
-                                               invalidateSize:Boolean,
-                                               invalidateDisplayList:Boolean):void
-    {
-        var sm:ISystemManager = systemManager;
-        if (!sm.useSWFBridge())
-            return;
-            
-        var bridge:IEventDispatcher = sm.swfBridgeGroup.parentBridge;
-        var flags:uint = 0;
-        
-        if (invalidateProperites)
-            flags |= InvalidateRequestData.PROPERTIES;
-        if (invalidateSize)
-            flags |= InvalidateRequestData.SIZE;
-        if (invalidateDisplayList)
-            flags |= InvalidateRequestData.DISPLAY_LIST;
-            
-        var request:SWFBridgeRequest = new SWFBridgeRequest(
-                                                    SWFBridgeRequest.INVALIDATE_REQUEST,
-                                                    false, false,
-                                                    bridge,
-                                                    flags);
-         bridge.dispatchEvent(request);
-    }
+	    /**
+	     *  @private
+	     *  
+	     *  Dispatch an invalidate request to a parent application using
+	     *  a sandbox bridge.
+	     */     
+	    protected function dispatchInvalidateRequest(invalidateProperites:Boolean,
+	                                               invalidateSize:Boolean,
+	                                               invalidateDisplayList:Boolean):void {
+	        var sm:ISystemManager = systemManager;
+	        if (!sm.useSWFBridge())
+	            return;
+	            
+	        var bridge:IEventDispatcher = sm.swfBridgeGroup.parentBridge;
+	        var flags:uint = 0;
+	        
+	        if (invalidateProperites)
+	            flags |= InvalidateRequestData.PROPERTIES;
+	        if (invalidateSize)
+	            flags |= InvalidateRequestData.SIZE;
+	        if (invalidateDisplayList)
+	            flags |= InvalidateRequestData.DISPLAY_LIST;
+	            
+	        var request:SWFBridgeRequest = new SWFBridgeRequest(
+	                                                    SWFBridgeRequest.INVALIDATE_REQUEST,
+	                                                    false, false,
+	                                                    bridge,
+	                                                    flags);
+	         bridge.dispatchEvent(request);
+	    }
     
-    //--------------------------------------------------------------------------
-    //
-    //  Event handlers
-    //
-    //--------------------------------------------------------------------------
+	    //--------------------------------------------------------------------------
+	    //
+	    //  Event handlers
+	    //
+	    //--------------------------------------------------------------------------
+	
+	    /**
+	     *  @private
+	     */
+	    protected function initializeHandler(event:FlexEvent):void {
+	        if (contentChanged) {
+	            contentChanged = false;
+	            
+	            if (_autoLoad)
+	                load(_source);
+	        }
+		}
 
-    /**
-     *  @private
-     */
-    protected function initializeHandler(event:FlexEvent):void
-    {
-        if (contentChanged)
-        {
-            contentChanged = false;
-            
-            if (_autoLoad)
-                load(_source);
-        }
-        }
+	    protected function addedToStageHandler(event:Event):void {
+	        systemManager.getSandboxRoot().addEventListener(InterManagerRequest.DRAG_MANAGER_REQUEST, 
+	                mouseShieldHandler, false, 0, true);
+	    }
+	
+	    
+	    mx_internal function contentLoaderInfo_completeEventHandler(event:Event):void {
+	        // Sometimes we interrupt a load to start another load after
+	        // the bytes are in but before the complete event is dispatched.
+	        // In this case we get an IOError when we call close()
+	        // and the complete event is dispatched anyway.
+	        // Meanwhile we've started the new load.
+	        // We ignore the complete if the contentHolder doesn't match
+	        // because that means it was for the old content
+	        if (LoaderInfo(event.target).loader != contentHolder)
+	            return;
+	
+	        // Redispatch the event from this SWFLoader.
+	        dispatchEvent(event);
+	
+	        contentLoaded();
+	        
+	        if (contentHolder is Loader) 
+	        	removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+	
+	    }
 
-    /**
-     *  @private
-     */
-    protected function addedToStageHandler(event:Event):void
-    {
-        systemManager.getSandboxRoot().addEventListener(InterManagerRequest.DRAG_MANAGER_REQUEST, 
-                mouseShieldHandler, false, 0, true);
-    }
-
-    
-    /**
-     *  @private
-     */
-    mx_internal function contentLoaderInfo_completeEventHandler(event:Event):void
-    {
-        // Sometimes we interrupt a load to start another load after
-        // the bytes are in but before the complete event is dispatched.
-        // In this case we get an IOError when we call close()
-        // and the complete event is dispatched anyway.
-        // Meanwhile we've started the new load.
-        // We ignore the complete if the contentHolder doesn't match
-        // because that means it was for the old content
-        if (LoaderInfo(event.target).loader != contentHolder)
-            return;
-
-        // Redispatch the event from this SWFLoader.
-        dispatchEvent(event);
-
-        contentLoaded();
-        
-        if (contentHolder is Loader) 
-                        removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
-
-    }
-
-    /**
-     *  @private
-     */
     protected function contentLoaderInfo_httpStatusEventHandler(
-                            event:HTTPStatusEvent):void
-    {
+                            event:HTTPStatusEvent):void {
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
     }
 
-    /**
-     *  @private
-     */
-    protected function contentLoaderInfo_initEventHandler(event:Event):void
-    {
+    protected function contentLoaderInfo_initEventHandler(event:Event):void {
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
         
         // if we are loading a swf listen of a message if it ends up needing to
         // use a sandbox bridge to communicate.
-                addInitSystemManagerCompleteListener(LoaderInfo(event.target).loader.contentLoaderInfo);
+        addInitSystemManagerCompleteListener(LoaderInfo(event.target).loader.contentLoaderInfo);
     }
 
 
@@ -1728,10 +1654,8 @@ package net.guitarpoet.joyce.loader {
      * If we are loading a swf, listen for a message from the swf telling us it was loading
      * into an application domain where it needs to use a sandbox bridge to communicate.
      */
-    protected function addInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void
-    {
-            if (loaderInfo.contentType == "application/x-shockwave-flash")
-            {
+    protected function addInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void {
+            if (contentIsFlash(loaderInfo)) {
                     var bridge:EventDispatcher = loaderInfo.sharedEvents;
                     bridge.addEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
                                                               initSystemManagerCompleteEventHandler);
@@ -1741,10 +1665,8 @@ package net.guitarpoet.joyce.loader {
     /**
      * Remove the listener after the swf is loaded.
      */
-    protected function removeInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void
-    {
-            if (loaderInfo.contentType == "application/x-shockwave-flash")
-            {
+    protected function removeInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void {
+            if (contentIsFlash(loaderInfo)) {
                     var bridge:EventDispatcher = loaderInfo.sharedEvents;                   
                     bridge.removeEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
                                                                       initSystemManagerCompleteEventHandler);
@@ -1752,8 +1674,7 @@ package net.guitarpoet.joyce.loader {
     }
 
     protected function contentLoaderInfo_ioErrorEventHandler(
-                            event:IOErrorEvent):void
-    {
+                            event:IOErrorEvent):void {
         // Error loading content, show the broken image.
         source = getStyle("brokenImageSkin");
 
@@ -1776,15 +1697,13 @@ package net.guitarpoet.joyce.loader {
 
     }
 
-    protected function contentLoaderInfo_openEventHandler(event:Event):void
-    {
+    protected function contentLoaderInfo_openEventHandler(event:Event):void {
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
     }
 
     protected function contentLoaderInfo_progressEventHandler(
-                            event:ProgressEvent):void
-    {
+                            event:ProgressEvent):void {
         _bytesTotal = event.bytesTotal;
         _bytesLoaded = event.bytesLoaded;
 
@@ -1793,10 +1712,8 @@ package net.guitarpoet.joyce.loader {
     }
 
     protected function contentLoaderInfo_securityErrorEventHandler(
-                            event:SecurityErrorEvent):void
-    {
-        if (attemptingChildAppDomain)
-        {
+                            event:SecurityErrorEvent):void {
+        if (attemptingChildAppDomain) {
             attemptingChildAppDomain = false;
             var lc:LoaderContext = new LoaderContext();
             _loaderContext = lc;
@@ -1811,8 +1728,7 @@ package net.guitarpoet.joyce.loader {
                         removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
     }
 
-    protected function contentLoaderInfo_unloadEventHandler(event:Event):void
-    {
+    protected function contentLoaderInfo_unloadEventHandler(event:Event):void {
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
         
@@ -1836,184 +1752,160 @@ package net.guitarpoet.joyce.loader {
      *  Message dispatched from System Manager. This gives us the child bridge
      *  of the application we loaded.
      */
-    protected function initSystemManagerCompleteEventHandler(event:Event):void
-    {
-            var eObj:Object = Object(event);
+    protected function initSystemManagerCompleteEventHandler(event:Event):void {
+        var eObj:Object = Object(event);
+        
+        // make sure this is the child we created by checking the loader info.
+        if (contentHolder is Loader && 
+                eObj.data == Loader(contentHolder).contentLoaderInfo.sharedEvents) {
+            _swfBridge = Loader(contentHolder).contentLoaderInfo.sharedEvents;
             
-            // make sure this is the child we created by checking the loader info.
-            if (contentHolder is Loader && 
-                    eObj.data == Loader(contentHolder).contentLoaderInfo.sharedEvents)
-            {
-                    _swfBridge = Loader(contentHolder).contentLoaderInfo.sharedEvents;
-                    
-                    var sm:ISystemManager = systemManager;
-                    sm.addChildBridge(_swfBridge, this);
-                    removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
-                    
-        _swfBridge.addEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
-                                   invalidateRequestHandler);
-            }
+            var sm:ISystemManager = systemManager;
+            sm.addChildBridge(_swfBridge, this);
+            removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+                
+    		_swfBridge.addEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
+                               invalidateRequestHandler);
+        }
     }
         
-    /**
-     *  @private
-     * 
-     *  Handle invalidate requests send from the child using the
-     *  sandbox bridge. 
-     * 
-     */  
-    protected function invalidateRequestHandler(event:Event):void
-    {
-        if (event is SWFBridgeRequest)
-            return;
-
-        // handle request
-        var request:SWFBridgeRequest = SWFBridgeRequest.marshal(event);
-
-        var invalidateFlags:uint = uint(request.data);        
-
-        if (invalidateFlags & InvalidateRequestData.PROPERTIES)
-            invalidateProperties();
-
-        if (invalidateFlags & InvalidateRequestData.SIZE)
-            invalidateSize();
-
-        if (invalidateFlags & InvalidateRequestData.DISPLAY_LIST)
-            invalidateDisplayList();
-                    
-        // redispatch the request up the parent chain
-        dispatchInvalidateRequest(
-                (invalidateFlags & InvalidateRequestData.PROPERTIES) != 0,
-                (invalidateFlags & InvalidateRequestData.SIZE) != 0,
-                (invalidateFlags & InvalidateRequestData.DISPLAY_LIST) != 0);
-    }
+	    /**
+	     * 
+	     *  Handle invalidate requests send from the child using the
+	     *  sandbox bridge. 
+	     * 
+	     */  
+	    protected function invalidateRequestHandler(event:Event):void {
+	        if (event is SWFBridgeRequest)
+	            return;
+	
+	        // handle request
+	        var request:SWFBridgeRequest = SWFBridgeRequest.marshal(event);
+	
+	        var invalidateFlags:uint = uint(request.data);        
+	
+	        if (invalidateFlags & InvalidateRequestData.PROPERTIES)
+	            invalidateProperties();
+	
+	        if (invalidateFlags & InvalidateRequestData.SIZE)
+	            invalidateSize();
+	
+	        if (invalidateFlags & InvalidateRequestData.DISPLAY_LIST)
+	            invalidateDisplayList();
+	                    
+	        // redispatch the request up the parent chain
+	        dispatchInvalidateRequest(
+	                (invalidateFlags & InvalidateRequestData.PROPERTIES) != 0,
+	                (invalidateFlags & InvalidateRequestData.SIZE) != 0,
+	                (invalidateFlags & InvalidateRequestData.DISPLAY_LIST) != 0);
+	    }
     
 
-    /**
-     *  Put up or takedown a mouseshield that covers the content
-     *  of the application we loaded.
-     */
-    protected function mouseShieldHandler(event:Event):void
-    {
+	    /**
+	     *  Put up or takedown a mouseshield that covers the content
+	     *  of the application we loaded.
+	     */
+	    protected function mouseShieldHandler(event:Event):void {
             if (event["name"] != "mouseShield")
                     return;
 
             if (parentAllowsChild)
                     return;
 
-            if (event["value"])
-            {
-                    if (!mouseShield)
-                    {
-                            mouseShield = new Sprite();
-                            mouseShield.graphics.beginFill(0, 0);
-                            mouseShield.graphics.drawRect(0, 0, 100, 100);
-                            mouseShield.graphics.endFill();
-                    }
-                    if (!mouseShield.parent)
-                            addChild(mouseShield);
-                    sizeShield();
-
+            if (event["value"]) {
+                if (!mouseShield)
+                {
+                        mouseShield = new Sprite();
+                        mouseShield.graphics.beginFill(0, 0);
+                        mouseShield.graphics.drawRect(0, 0, 100, 100);
+                        mouseShield.graphics.endFill();
+                }
+                if (!mouseShield.parent)
+                        addChild(mouseShield);
+                sizeShield();
             }
-            else
-            {
-                    if (mouseShield && mouseShield.parent)
-                            removeChild(mouseShield)
+            else {
+                if (mouseShield && mouseShield.parent)
+                        removeChild(mouseShield)
             }
-    }
+	    }
         
-    /**
-     *      size the shield if needed
-     */
-    protected function sizeShield():void
-    {
-            if (mouseShield && mouseShield.parent)
-            {
-                    mouseShield.width = unscaledWidth;
-                    mouseShield.height = unscaledHeight;
+	    /**
+	     *      size the shield if needed
+	     */
+	    protected function sizeShield():void {
+            if (mouseShield && mouseShield.parent) {
+                mouseShield.width = unscaledWidth;
+                mouseShield.height = unscaledHeight;
             }
-    }
+	    }
 
-    /**
-     *  @private
-     * 
-     *  Just push this change, wholesale, onto the loaded content, if the
-     *  content is another Flex SWF
-     */
-    override public function regenerateStyleCache(recursive:Boolean):void
-    {
-        super.regenerateStyleCache(recursive);
-        
-        try
-        {
-            var sm:ISystemManager = content as ISystemManager;
-            if (sm != null)
-                Object(sm).regenerateStyleCache(recursive);
-        }
-        catch(error:Error)
-        {
-            // Ignore any errors trying to access the content
-            // b/c we may cause a security violation trying to do it
-                        // Also ignore if the sm doesn't have a regenerateStyleCache method
-        }
-    }
+	    /**
+	     *  Just push this change, wholesale, onto the loaded content, if the
+	     *  content is another Flex SWF
+	     */
+	    override public function regenerateStyleCache(recursive:Boolean):void {
+	        super.regenerateStyleCache(recursive);
+	        
+	        try {
+	            var sm:ISystemManager = content as ISystemManager;
+	            if (sm != null)
+	                Object(sm).regenerateStyleCache(recursive);
+	        }
+	        catch(error:Error) {
+	            // Ignore any errors trying to access the content
+	            // b/c we may cause a security violation trying to do it
+	                        // Also ignore if the sm doesn't have a regenerateStyleCache method
+	        }
+	    }
 
-    /**
-     *  @private
-     * 
-     *  Just push this change, wholesale, onto the loaded content, if the
-     *  content is another Flex SWF
-     */
-    override public function notifyStyleChangeInChildren(styleProp:String, recursive:Boolean):void
-    {
-        super.notifyStyleChangeInChildren(styleProp, recursive);
-        
-        try
-        {
-            var sm:ISystemManager = content as ISystemManager;
-            if (sm != null)
-                Object(sm).notifyStyleChangeInChildren(styleProp, recursive);
-        }
-        catch(error:Error)
-        {
-            // Ignore any errors trying to access the content
-            // b/c we may cause a security violation trying to do it
-                        // Also ignore if the sm doesn't have a notifyStyleChangeInChildren method
-        }
-    }
+	    /**
+	     *  Just push this change, wholesale, onto the loaded content, if the
+	     *  content is another Flex SWF
+	     */
+	    override public function notifyStyleChangeInChildren(styleProp:String, recursive:Boolean):void {
+	        super.notifyStyleChangeInChildren(styleProp, recursive);
+	        
+	        try {
+	            var sm:ISystemManager = content as ISystemManager;
+	            if (sm != null)
+	                Object(sm).notifyStyleChangeInChildren(styleProp, recursive);
+	        }
+	        catch(error:Error) {
+	            // Ignore any errors trying to access the content
+	            // b/c we may cause a security violation trying to do it
+	            // Also ignore if the sm doesn't have a notifyStyleChangeInChildren method
+	        }
+	    }
     
-    protected function getContentSize():Point
-    {
+	    protected function getContentSize():Point {
             var pt:Point = new Point();
             
             if (!contentHolder is Loader)
                     return pt;
                     
             var holder:Loader = Loader(contentHolder);
-            if (holder.contentLoaderInfo.childAllowsParent)
-            {
-                    pt.x = holder.content.width;
-                    pt.y = holder.content.height;
+            if (holder.contentLoaderInfo.childAllowsParent) {
+                pt.x = holder.content.width;
+                pt.y = holder.content.height;
             }
-            else
-            {
-                    var bridge:IEventDispatcher = swfBridge;
-                    if (bridge)
-                    {
-                            var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
-                            bridge.dispatchEvent(request);
-                            pt.x = request.data.width;
-                            pt.y = request.data.height;
-                    }
+            else {
+                var bridge:IEventDispatcher = swfBridge;
+                if (bridge) {
+                    var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
+                    bridge.dispatchEvent(request);
+                    pt.x = request.data.width;
+                    pt.y = request.data.height;
+                }
             }
     
             // don't return zero out of here otherwise the Loader's scale goes to zero
             if (pt.x == 0)
-                    pt.x = holder.contentLoaderInfo.width;
+                pt.x = holder.contentLoaderInfo.width;
             if (pt.y == 0)
-                    pt.y = holder.contentLoaderInfo.height;
+                pt.y = holder.contentLoaderInfo.height;
 
             return pt;
-    }
+	    }
 	}
 }
