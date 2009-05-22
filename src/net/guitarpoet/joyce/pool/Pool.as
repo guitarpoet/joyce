@@ -17,6 +17,8 @@ package net.guitarpoet.joyce.pool {
 		
 		protected var strategy : PoolStrategy;
 		
+		protected var _disposer : Function;
+		
 		public function Pool(limit : int = 100, strategy : PoolStrategy = null) {
 			entries = new Object();
 			this._limit = limit;
@@ -39,8 +41,20 @@ package net.guitarpoet.joyce.pool {
 			_limit = limit;
 		}
 		
+		public function get disposer() : Function {
+			return this._disposer;
+		}
+		
+		public function set disposer(d : Function) : void {
+			this._disposer = d;
+		}
+		
+		public function has(name : String) : Boolean {
+			return entries[name] is Entry;
+		}
+		
 		public function getObject(name : String) : * {
-			if(entries[name] is Entry){
+			if(has(name)){
 				return entries[name].value;
 			}
 			return null;
@@ -58,6 +72,8 @@ package net.guitarpoet.joyce.pool {
 		
 		public function removeObject(name : String) : void {
 			if(entries[name] is Entry){
+				if(disposer != null)
+					disposer(Entry(entries[name]).value);
 				delete entries[name];
 			}
 		}
