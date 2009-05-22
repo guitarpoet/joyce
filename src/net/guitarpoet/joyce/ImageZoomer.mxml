@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" implements="mx.managers.IFocusManagerComponent"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	resize="adjustSize()" mouseDown="onMouseDown(event);" mouseUp="onMouseUp(event);" 
+	mouseOut="onMouseUp(event);" mouseWheel="onMouseWheel(event);" xmlns:joyce="net.guitarpoet.joyce.*">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			[Bindable]
+			public var start : Point;
+			
+			protected var _photo : *;
+			
+			protected var origWidth : int;
+			
+			protected var origHeight : int;
+			
+			[Bindable]
+			protected var yDelta : int = 0;
+			
+			[Bindable]
+			protected var xDelta : int = 0;
+			
+			[Bindable]
+			public var imageRotation : int = 0;
+			
+			[Bindable]
+			public function get photo() : * {
+				return this._photo;
+			}
+			
+			public function set photo(photo : *) : void {
+				imageRotation = 0;
+				this._photo = photo;
+				image.source = encodeURI(photo.path);
+			}
+			
+			public function zoomin() : void {
+				image.width = image.width * 1.5;
+				image.height = image.height * 1.5;
+			}
+			
+			public function zoomout() : void {
+				image.width = image.width / 1.5;
+				image.height = image.height / 1.5;
+			}
+			
+			public function init(event : Event) : void {
+				origHeight = image.contentHeight;
+				origWidth = image.contentWidth;
+				switch(photo.orientation){
+					case 1:
+					case 2:
+						break;
+					case 3:
+					case 4:
+						rotateRight();
+						rotateRight();
+						break;
+					case 5:
+					case 6:
+						rotateRight();
+						break;
+					case 7:
+					case 8:
+						rotateLeft();
+						break;
+				}
+				adjustSize();
+				dispatchEvent(event);
+			}
+			
+			public function origin() : void{
+				image.height = origHeight;
+				image.width = origWidth;
+			}
+			
+			protected function onMouseWheel(event : MouseEvent) : void {
+				if(event.delta > 0){
+					zoomin();
+				}
+				else{
+					zoomout();
+				}
+			}
+			
+			public function adjustSize() : void {
+				if((image.rotation / 90) % 2){
+					if(origWidth > this.height){
+						if(origHeight > this.width){
+							if(origHeight / origWidth > this.width / this.height){
+								image.height = this.width;
+								image.width = image.height * origWidth / origHeight; 
+							}
+							else{
+								image.width = this.height;
+								image.height = image.width * origHeight / origWidth;
+							}
+						}
+						else{
+							image.width = this.height;
+							image.height = image.width * origHeight / origWidth;
+						}
+					}else{
+						if(origHeight > this.width){
+							image.height = this.width;
+							image.width = image.height * origWidth / origHeight;
+						}else {
+							image.width = origWidth;
+							image.height = origHeight;
+						}
+					}
+				}
+				else{
+					if(origWidth > this.width){
+						if(origHeight > this.height){
+							if(origWidth / origHeight > this.width / this.height){
+								image.width = this.width;
+								image.height = this.width * origHeight / origWidth;
+							}
+							else{
+								image.width = this.height / origHeight * origWidth;
+								image.height = this.height;
+							}
+						}
+						else{
+							image.width = this.width;
+							image.height = this.width * origHeight / origWidth;
+						}
+					}else{
+						if(origHeight > this.height){
+							image.width = this.height / origHeight * origWidth;
+							image.height = this.height;
+						}else {
+							image.height = image.contentHeight;
+							image.width = image.contentWidth;
+						}
+					}
+				}
+				verticalScrollPosition = 5000 - this.height / 2;
+				horizontalScrollPosition = 5000 - this.width / 2;
+			}
+			
+			protected function onMouseDown(event : MouseEvent) : void {
+				start = new Point(this.mouseX, this.mouseY);
+				yDelta = 0;
+				xDelta = 0;
+				this.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			}
+			
+			protected function onMouseMove(event : MouseEvent) : void {
+				yDelta  += this.mouseY - start.y;
+				xDelta  += this.mouseX - start.x;
+				if(Math.abs(yDelta) > 5){
+					verticalScrollPosition -= yDelta;
+					yDelta = 0;
+					if(verticalScrollPosition < 0)
+						verticalScrollPosition = 0;
+				}
+				if(Math.abs(xDelta) > 5){
+					horizontalScrollPosition -= xDelta;
+					if(horizontalScrollPosition < 0)
+						horizontalScrollPosition = 0;
+					xDelta = 0;
+				}
+				start = new Point(this.mouseX, this.mouseY);
+			}
+			
+			protected function onMouseUp(event : MouseEvent) : void {	
+				if(this.hasEventListener(MouseEvent.MOUSE_MOVE))
+					this.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			}
+			
+			public function rotateLeft() : void {
+				rl.stop();
+				rr.stop();
+				rl.play();
+				imageRotation -= 90;
+			}
+			
+			public function rotateRight() : void {
+				rl.stop();
+				rr.stop();
+				rr.play();
+				imageRotation += 90;
+			}
+			
+			
+			public function getXOff(width : int, height : int) : int {
+				if(image.rotation == 90){
+					return - height / 2;
+				}
+				if(image.rotation == 180 || image.rotation == -180){
+					return - width / 2;
+				}
+				if(image.rotation == -90 || image.rotation == 270){
+					return height / 2;
+				}
+				return width / 2;
+			}
+			
+			public function getYOff(width : int, height : int) : int {
+				if(image.rotation == 90){
+					return width / 2;
+				}
+				if(image.rotation == 180 || image.rotation == -180){
+					return - height / 2;
+				}
+				if(image.rotation == -90 || image.rotation == 270){
+					return - width / 2;
+				}
+				return height / 2;
+			}
+			
+			public function preload(url : String) : void {
+				image.preload(url);
+			}
+		]]>
+	</mx:Script>
+		<mx:Rotate id="rl" target="{image}" angleFrom="{imageRotation}" angleTo="{imageRotation - 90}"/>
+	<mx:Rotate id="rr" target="{image}" angleFrom="{imageRotation}" angleTo="{imageRotation + 90}"/>
+	<mx:Resize duration="500" id="resizeEffect"/>
+	<mx:Canvas id="container" width="10000" height="10000">
+		<joyce:BetterImage id="image" buttonMode="true" complete="init(event);"
+			x="{5000 - getXOff(image.width, image.height)}" 
+			y="{5000 - getYOff(image.width, image.height)}" resizeEffect="{resizeEffect}">
+			<joyce:filters>
+				<mx:DropShadowFilter/>
+			</joyce:filters>
+		</joyce:BetterImage>
+	</mx:Canvas>
+</mx:Canvas>

@@ -5,8 +5,9 @@
 <classEntry path="net.guitarpoet.joyce.BetterImage"/>
 <classEntry path="net.guitarpoet.joyce.pool.LRUStrategy"/>
 <classEntry path="net.guitarpoet.joyce.loader.BufferedLoader"/>
-<classEntry path="net.guitarpoet.joyce.pool.Entry"/>
+<classEntry path="net.guitarpoet.joyce.ImageZoomer"/>
 <classEntry path="net.guitarpoet.joyce.pool.Pool"/>
+<classEntry path="net.guitarpoet.joyce.pool.Entry"/>
 </includeClasses>
 <includeResources/>
 <namespaceManifests/>

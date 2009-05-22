@@ -415,7 +415,7 @@ package net.guitarpoet.joyce.loader {
 	     *  @default NaN
 	     */
 	    public function get contentHeight():Number {
-	        return contentHolder ? contentHolder.height : NaN;
+	        return contentHolder ? contentHolderHeight : NaN;
 	    }
 	
 	    //----------------------------------
@@ -430,6 +430,12 @@ package net.guitarpoet.joyce.loader {
 	   		// For externally loaded content, use the loaderInfo structure
 	        var loaderInfo:LoaderInfo;
 	        var holderWidth:int, holderHeight:int;
+	        
+	        // If the bitmap is preloaded, the width and height of the bitmap is 0, let's adjust it.
+	        if(contentHolder is Bitmap) {
+	        	return new Point(Bitmap(contentHolder).bitmapData.width, 
+	        		Bitmap(contentHolder).bitmapData.height);
+	        }
 	        
 	        if (contentHolder is Loader)
 	            loaderInfo = Loader(contentHolder).contentLoaderInfo;
@@ -467,7 +473,7 @@ package net.guitarpoet.joyce.loader {
 					return new Point(loaderInfo.width, loaderInfo.height);
 				}
 				catch(error : Error){
-					return new Point(contentHolder.width, contentHolder.height);
+					return new Point(Loader(contentHolder).content.width, Loader(contentHolder).content.height);
 				}
 	        }
 	        else {
@@ -512,7 +518,7 @@ package net.guitarpoet.joyce.loader {
 	     *  @default NaN
 	     */
 	    public function get contentWidth():Number {
-	        return contentHolder ? contentHolder.width : NaN;
+	        return contentHolder ? contentHolderWidth : NaN;
 	    }
 	
 	    //----------------------------------
@@ -1159,10 +1165,16 @@ package net.guitarpoet.joyce.loader {
 	        var loader:Loader;
 	        
 	        // Let the pool do the trick.
-	        if(pool.has(String(classOrString))){
+	        if(pool.has(String(classOrString))) {
 	    		child = pool.getObject(String(classOrString)) as DisplayObject;
+	    		if(child is Loader){
+	    			child = Loader(child).content;
+	    		}
 	    		addChild(child);
 	    		contentLoaded();
+	    		// Just before complete :(
+	    		contentHolder = child;
+	    		dispatchEvent(new Event(Event.COMPLETE));
 	    		return child;
 	    	}
 	    	
