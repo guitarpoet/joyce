@@ -473,7 +473,7 @@ package net.guitarpoet.joyce.loader {
 					return new Point(loaderInfo.width, loaderInfo.height);
 				}
 				catch(error : Error){
-					return new Point(Loader(contentHolder).content.width, Loader(contentHolder).content.height);
+					return new Point(contentHolder.width, contentHolder.height);
 				}
 	        }
 	        else {
