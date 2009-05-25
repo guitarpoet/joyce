@@ -1025,7 +1025,7 @@ package net.guitarpoet.joyce.loader {
 			var context : LoaderContext = new LoaderContext();
 			pool.addObject(url, loader);
 			// I just preload the data, I don't care when it loaded.
-			loader.load(new URLRequest(encodeURI(url)), context);
+			loader.load(new URLRequest(url), context);
 		}
 
 	    /**

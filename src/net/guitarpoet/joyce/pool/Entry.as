@@ -24,6 +24,7 @@ package net.guitarpoet.joyce.pool {
 			modifyTime = new Date();
 			if(!createTime)
 				createTime = modifyTime;
+			readTime = modifyTime;
 		}
 	}
 }

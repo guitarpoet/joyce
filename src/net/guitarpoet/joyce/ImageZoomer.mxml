@@ -5,6 +5,7 @@
 	mouseOut="onMouseUp(event);" mouseWheel="onMouseWheel(event);" xmlns:joyce="net.guitarpoet.joyce.*">
 	<mx:Metadata>
 		[Event(name="complete", type="flash.events.Event")] 
+		[Event(name="photoChanged", type="flash.events.Event")] 
 	</mx:Metadata>
 	<mx:Script>
 		<![CDATA[
@@ -37,6 +38,7 @@
 				imageRotation = 0;
 				this._photo = photo;
 				image.source = encodeURI(photo.path);
+				dispatchEvent(new Event("photoChanged"));
 			}
 			
 			public function zoomin() : void {
