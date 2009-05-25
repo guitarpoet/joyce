@@ -3,9 +3,13 @@
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	resize="adjustSize()" mouseDown="onMouseDown(event);" mouseUp="onMouseUp(event);" 
 	mouseOut="onMouseUp(event);" mouseWheel="onMouseWheel(event);" xmlns:joyce="net.guitarpoet.joyce.*">
+	<mx:Metadata>
+		[Event(name="complete", type="flash.events.Event")] 
+	</mx:Metadata>
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
+			import mx.utils.ObjectUtil;
 			[Bindable]
 			public var start : Point;
 			
@@ -217,7 +221,7 @@
 			}
 		]]>
 	</mx:Script>
-		<mx:Rotate id="rl" target="{image}" angleFrom="{imageRotation}" angleTo="{imageRotation - 90}"/>
+	<mx:Rotate id="rl" target="{image}" angleFrom="{imageRotation}" angleTo="{imageRotation - 90}"/>
 	<mx:Rotate id="rr" target="{image}" angleFrom="{imageRotation}" angleTo="{imageRotation + 90}"/>
 	<mx:Resize duration="500" id="resizeEffect"/>
 	<mx:Canvas id="container" width="10000" height="10000">

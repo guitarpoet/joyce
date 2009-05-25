@@ -204,7 +204,7 @@ package net.guitarpoet.joyce.loader {
 	    //
 	    //--------------------------------------------------------------------------
 	    
-	    public const DEFAULT_POOL_LIMIT : int = 10;
+	    public const DEFAULT_POOL_LIMIT : int = 3;
 		
 		//--------------------------------------------------------------------------
 	    //
@@ -238,7 +238,7 @@ package net.guitarpoet.joyce.loader {
 	
 	    protected var mouseShield:Sprite;
 	    
-	    protected var pool : Pool;
+	    public var pool : Pool;
 	
 	    /**
 	     *  When unloading a swf, check this flag to see if we
@@ -1019,11 +1019,13 @@ package net.guitarpoet.joyce.loader {
 		 * 
 		 */
 		public function preload(url : String = null) : void {
+			if(pool.has(url))
+				return;
 			var loader : FlexLoader = new FlexLoader();
 			var context : LoaderContext = new LoaderContext();
 			pool.addObject(url, loader);
 			// I just preload the data, I don't care when it loaded.
-			loader.load(new URLRequest(url), context);
+			loader.load(new URLRequest(encodeURI(url)), context);
 		}
 
 	    /**

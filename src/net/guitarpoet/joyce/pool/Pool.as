@@ -96,6 +96,16 @@ package net.guitarpoet.joyce.pool {
 			}
 		}
 		
+		public function get keys() : Array {
+			var keys : Array = new Array();
+			for(var p : String in entries){
+				if(entries[p] is Entry){
+					keys.push(p);
+				}
+			}
+			return keys;
+		}
+		
 		public function get items() : Array {
 			var items : Array = new Array();
 			for(var p : String in entries){
