@@ -14,6 +14,9 @@
 			[Bindable]
 			public var start : Point;
 			
+			[Bindable]
+			protected var showProcess : Boolean = false;
+			
 			protected var _photo : *;
 			
 			protected var origWidth : int;
@@ -52,6 +55,7 @@
 			}
 			
 			public function init(event : Event) : void {
+				showProcess = false;
 				origHeight = image.contentHeight;
 				origWidth = image.contentWidth;
 				switch(photo.orientation){
@@ -221,13 +225,18 @@
 			public function preload(url : String) : void {
 				image.preload(url);
 			}
+			
+			public function showProcessBar() : void{
+				showProcess = true;
+			}
 		]]>
 	</mx:Script>
+	<mx:ProgressBar id="progressBarLoadPhoto" width="400" verticalCenter="0" horizontalCenter="0" height="100" mode="manual" visible="{showProcess}"/>  
 	<mx:Rotate id="rl" target="{image}" angleFrom="{imageRotation}" angleTo="{imageRotation - 90}"/>
 	<mx:Rotate id="rr" target="{image}" angleFrom="{imageRotation}" angleTo="{imageRotation + 90}"/>
 	<mx:Resize duration="500" id="resizeEffect"/>
 	<mx:Canvas id="container" width="10000" height="10000">
-		<joyce:BetterImage id="image" buttonMode="true" complete="init(event);"
+		<joyce:BetterImage id="image" buttonMode="true" beginLoad="showProcessBar()" complete="init(event);"
 			x="{5000 - getXOff(image.width, image.height)}" 
 			y="{5000 - getYOff(image.width, image.height)}" resizeEffect="{resizeEffect}">
 			<joyce:filters>

@@ -82,6 +82,9 @@ package net.guitarpoet.joyce.loader {
 	 */
 	[Event(name="init", type="flash.events.Event")]
 	
+	
+	[Event(name="beginLoad", type="flash.events.Event")]
+	
 	/**
 	 *  Dispatched when an input/output error occurs.
 	 *  @see flash.events.IOErrorEvent
@@ -1320,6 +1323,7 @@ package net.guitarpoet.joyce.loader {
 	                }
 	            }
 	
+				loader.dispatchEvent(new Event("beginLoad"));
 	            loader.load(requestedURL, lc);
 	        }
 	        else {
