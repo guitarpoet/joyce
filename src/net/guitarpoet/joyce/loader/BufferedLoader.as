@@ -1103,8 +1103,15 @@ package net.guitarpoet.joyce.loader {
 	
 	        if (!_source || _source == "")
 	            return;
-	
-	        contentHolder = loadContent(_source);
+			try{
+				contentHolder = loadContent(_source);
+			}catch(error : Error){
+				// Forgo the error when try to use content not preload over;
+				if(pool.has(String(url))){
+					pool.removeObject(String(url));
+					load(url);
+				}
+			}
 	    }
 
 	    /**
@@ -1161,7 +1168,7 @@ package net.guitarpoet.joyce.loader {
 	        
 	        return rect;
 	    }
- 
+	    
 	    protected function loadContent(classOrString:Object):DisplayObject {
 	        var child:DisplayObject;
 	        var cls:Class;
@@ -1173,6 +1180,7 @@ package net.guitarpoet.joyce.loader {
 	        if(pool.has(String(classOrString))) {
 	    		child = pool.getObject(String(classOrString)) as DisplayObject;
 	    		if(child is Loader){
+	    			var info : LoaderInfo = Loader(child).loaderInfo;
 	    			child = Loader(child).content;
 	    		}
 	    		addChild(child);

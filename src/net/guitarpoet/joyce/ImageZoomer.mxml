@@ -237,7 +237,7 @@
 	<mx:Resize duration="500" id="resizeEffect"/>
 	<mx:Canvas id="container" width="10000" height="10000">
 		<joyce:BetterImage id="image" buttonMode="true" beginLoad="showProcessBar()" complete="init(event);"
-			x="{5000 - getXOff(image.width, image.height)}" 
+			x="{5000 - getXOff(image.width, image.height)}" progress="progressBarLoadPhoto.setProgress(event.bytesLoaded, event.bytesLoaded)"
 			y="{5000 - getYOff(image.width, image.height)}" resizeEffect="{resizeEffect}">
 			<joyce:filters>
 				<mx:DropShadowFilter/>
