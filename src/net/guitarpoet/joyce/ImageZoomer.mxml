@@ -15,7 +15,7 @@
 			public var start : Point;
 			
 			[Bindable]
-			protected var showProcess : Boolean = false;
+			protected var showProcess : Boolean = true;
 			
 			protected var _photo : *;
 			
@@ -39,25 +39,43 @@
 			
 			public function set photo(photo : *) : void {
 				imageRotation = 0;
+				image.rotation = 0;
 				this._photo = photo;
 				image.source = encodeURI(photo.path);
 				dispatchEvent(new Event("photoChanged"));
 			}
 			
 			public function zoomin() : void {
-				image.width = image.width * 1.5;
-				image.height = image.height * 1.5;
+				if(resizeEffect.isPlaying)
+					resizeEffect.stop();
+				resizeEffect.widthFrom = image.width;
+				resizeEffect.widthTo = image.width * 1.5;
+				
+				resizeEffect.heightFrom = image.height;
+				resizeEffect.heightTo = image.height * 1.5;
+				resizeEffect.play();
 			}
 			
 			public function zoomout() : void {
-				image.width = image.width / 1.5;
-				image.height = image.height / 1.5;
+				if(resizeEffect.isPlaying)
+					resizeEffect.stop();
+				resizeEffect.widthFrom = image.width;
+				resizeEffect.widthTo = image.width / 1.5;
+				
+				resizeEffect.heightFrom = image.height;
+				resizeEffect.heightTo = image.height / 1.5;
+				resizeEffect.play();
 			}
 			
 			public function init(event : Event) : void {
 				showProcess = false;
 				origHeight = image.contentHeight;
 				origWidth = image.contentWidth;
+				trace("Origin width and height");
+				trace(origWidth.toString() + ":" + origHeight.toString());
+				
+				trace("Image width and height");
+				trace(image.width.toString() + ":" + image.height.toString());
 				switch(photo.orientation){
 					case 1:
 					case 2:
@@ -77,6 +95,12 @@
 						break;
 				}
 				adjustSize();
+				
+				trace("Content width and height");
+				trace(image.contentWidth.toString() + ":" + image.contentHeight.toString());
+				
+				trace("Image width and height");
+				trace(image.width.toString() + ":" + image.height.toString());
 				dispatchEvent(event);
 			}
 			
@@ -197,6 +221,7 @@
 			
 			
 			public function getXOff(width : int, height : int) : int {
+				trace("--- ---" + width.toString() + ":" + height.toString());
 				if(image.rotation == 90){
 					return - height / 2;
 				}
@@ -231,17 +256,17 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:ProgressBar id="progressBarLoadPhoto" width="400" verticalCenter="0" horizontalCenter="0" height="100" mode="manual" visible="{showProcess}"/>  
 	<mx:Rotate id="rl" target="{image}" angleFrom="{imageRotation}" angleTo="{imageRotation - 90}"/>
 	<mx:Rotate id="rr" target="{image}" angleFrom="{imageRotation}" angleTo="{imageRotation + 90}"/>
-	<mx:Resize duration="500" id="resizeEffect"/>
+	<mx:Resize id="resizeEffect" duration="500" target="{image}"/>
 	<mx:Canvas id="container" width="10000" height="10000">
-		<joyce:BetterImage id="image" buttonMode="true" beginLoad="showProcessBar()" complete="init(event);"
+		<joyce:BetterImage id="image" buttonMode="true" scaleContent="true" beginLoad="showProcessBar()" complete="init(event);"
 			x="{5000 - getXOff(image.width, image.height)}" progress="progressBarLoadPhoto.setProgress(event.bytesLoaded, event.bytesLoaded)"
-			y="{5000 - getYOff(image.width, image.height)}" resizeEffect="{resizeEffect}">
+			y="{5000 - getYOff(image.width, image.height)}" >
 			<joyce:filters>
 				<mx:DropShadowFilter/>
 			</joyce:filters>
 		</joyce:BetterImage>
 	</mx:Canvas>
+	<mx:ProgressBar id="progressBarLoadPhoto" width="400" verticalCenter="0" horizontalCenter="0" height="100" mode="manual" visible="{showProcess}"/>  
 </mx:Canvas>
