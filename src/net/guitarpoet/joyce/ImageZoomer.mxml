@@ -38,6 +38,8 @@
 			}
 			
 			public function set photo(photo : *) : void {
+				if(photo == null)
+					return;
 				imageRotation = 0;
 				image.rotation = 0;
 				this._photo = photo;
