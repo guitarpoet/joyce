@@ -1331,7 +1331,7 @@ package net.guitarpoet.joyce.loader {
 	                }
 	            }
 	
-				loader.dispatchEvent(new Event("beginLoad"));
+				this.dispatchEvent(new Event("beginLoad"));
 	            loader.load(requestedURL, lc);
 	        }
 	        else {
