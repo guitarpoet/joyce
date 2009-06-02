@@ -70,7 +70,6 @@
 			}
 			
 			public function init(event : Event) : void {
-				showProcess = false;
 				origHeight = image.contentHeight;
 				origWidth = image.contentWidth;
 				trace("Origin width and height");
@@ -104,6 +103,7 @@
 				trace("Image width and height");
 				trace(image.width.toString() + ":" + image.height.toString());
 				dispatchEvent(event);
+				progressBarLoadPhoto.visible = false;
 			}
 			
 			public function origin() : void{
@@ -253,8 +253,12 @@
 				image.preload(url);
 			}
 			
+			protected function setProgress(event : ProgressEvent) : void {
+				progressBarLoadPhoto.setProgress(event.bytesLoaded, event.bytesTotal);
+			}
+			
 			public function showProcessBar() : void{
-				showProcess = true;
+				progressBarLoadPhoto.visible = true;
 			}
 		]]>
 	</mx:Script>
@@ -263,12 +267,12 @@
 	<mx:Resize id="resizeEffect" duration="500" target="{image}"/>
 	<mx:Canvas id="container" width="10000" height="10000">
 		<joyce:BetterImage id="image" buttonMode="true" scaleContent="true" beginLoad="showProcessBar()" complete="init(event);"
-			x="{5000 - getXOff(image.width, image.height)}" progress="progressBarLoadPhoto.setProgress(event.bytesLoaded, event.bytesLoaded)"
+			x="{5000 - getXOff(image.width, image.height)}" progress="setProgress(event)"
 			y="{5000 - getYOff(image.width, image.height)}" >
 			<joyce:filters>
 				<mx:DropShadowFilter/>
 			</joyce:filters>
 		</joyce:BetterImage>
 	</mx:Canvas>
-	<mx:ProgressBar id="progressBarLoadPhoto" width="400" verticalCenter="0" horizontalCenter="0" height="100" mode="manual" visible="{showProcess}"/>  
+	<mx:ProgressBar id="progressBarLoadPhoto" width="400" x="{4800}" y="{4950}" height="100" mode="manual"/>  
 </mx:Canvas>
