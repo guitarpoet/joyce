@@ -1001,16 +1001,21 @@ package net.guitarpoet.joyce.loader {
 	    }
 
 		protected function disposeLoader(loader : *) : void {
-			if(loader is Loader){
-		        if (Loader(loader).content is Bitmap) {
-		            var imageData : Bitmap = Bitmap(Loader(loader).content);
-		            if (imageData.bitmapData)
-		                imageData.bitmapData = null; 
-		        }
-	            if (useUnloadAndStop && "unloadAndStop" in loader)
-	                loader["unloadAndStop"](unloadAndStopGC);
-	            else 
-	                Loader(loader).unload();
+			try{
+				if(loader is Loader){
+			        if (Loader(loader).content is Bitmap) {
+			            var imageData : Bitmap = Bitmap(Loader(loader).content);
+			            if (imageData.bitmapData)
+			                imageData.bitmapData = null; 
+			        }
+		            if (useUnloadAndStop && "unloadAndStop" in loader)
+		                loader["unloadAndStop"](unloadAndStopGC);
+		            else 
+		                Loader(loader).unload();
+				}
+			}
+			catch(e : Error){
+				
 			}
 		}
 		
